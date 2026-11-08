@@ -36,9 +36,9 @@
 
 ## 4. Việc tiếp theo
 
-- [ ] Chủ dự án chọn chất lượng video mặc định (mục 5.4.1 trong bản thiết kế) rồi duyệt bản thiết kế.
-- [ ] Lập kế hoạch triển khai tại `docs/superpowers/plans/`.
-- [ ] Code extension (Manifest V3) + native host (`native-host/`) theo kế hoạch.
+- [ ] Chủ dự án chọn cách triển khai kế hoạch (Subagent-driven hay Native).
+- [ ] Code theo kế hoạch `docs/superpowers/plans/2026-11-08-download-media-extension.md`.
+- [ ] Hoàn thành và bàn giao v1.0.0.
 
 ---
 

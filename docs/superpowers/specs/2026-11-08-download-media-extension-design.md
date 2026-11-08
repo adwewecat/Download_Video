@@ -1,7 +1,7 @@
 # Thiết kế: Chrome Extension tải ảnh & video (Download_Video_Image)
 
 - **Ngày:** 2026-11-08
-- **Trạng thái:** Chờ chủ dự án duyệt
+- **Trạng thái:** Đã duyệt (2026-11-08)
 - **Hướng đã chọn:** C — Kết hợp (extension tự tải ảnh/video file thường + chương trình hỗ trợ trên máy dùng yt-dlp cho video mạng xã hội)
 
 ---
@@ -26,7 +26,7 @@ Dùng cá nhân, cài thủ công (Load unpacked) — **không** phát hành lê
 **Không làm (v1)**
 - Phát hành Chrome Web Store; hỗ trợ Firefox / macOS / Linux.
 - Tải hàng loạt (cả playlist, cả kênh, "tải mọi ảnh trên trang").
-- Tách riêng âm thanh (mp3), chọn chất lượng thủ công.
+- Tách riêng âm thanh (mp3); chọn độ phân giải cụ thể (chỉ có 2 lựa chọn "dễ mở" / "MAX", xem 5.4.1).
 - Nội dung có DRM (Netflix, Spotify, Disney+, ...) — không thể và không hợp pháp.
 
 **Điều cấm (dù chạy được vẫn coi là thất bại)**
@@ -125,8 +125,8 @@ nhận diện nền tảng / permalink.
   `powershell -NoProfile -ExecutionPolicy Bypass -File host.ps1` (Bypass chỉ áp dụng cho tiến trình này).
 - Giao thức Native Messaging chuẩn (4 byte độ dài + JSON UTF-8) qua stdin/stdout.
 - Extension dùng `chrome.runtime.connectNative` (cổng mở giữ service worker sống trong lúc tải), mỗi lần tải một cổng.
-- Lệnh: `{ action: "download", url, cookies? }` → host trả về chuỗi `{ type: "progress", percent }`, cuối cùng `{ type: "done", file }`
-  hoặc `{ type: "error", message }`. Lệnh `{ action: "ping" }` để kiểm tra đã cài helper chưa.
+- Lệnh: `{ action: "download", url, quality: "compatible"|"best", cookies? }` → host trả về chuỗi `{ type: "progress", percent }`,
+  cuối cùng `{ type: "done", file, vcodec, height }` hoặc `{ type: "error", message }`. Lệnh `{ action: "ping" }` để kiểm tra đã cài helper chưa.
 - yt-dlp chạy với: `-f "bv*+ba/b" --merge-output-format mp4` + chuỗi sắp xếp chất lượng `-S` (xem 5.4.1), `--no-playlist`,
   `--newline` để đọc tiến độ, tên file `%(title).150B [%(id)s].%(ext)s`.
 - **Thư mục lưu** *(quyết định của người viết)*: host tự tìm thư mục Downloads **thật** của Windows (known folder
@@ -134,8 +134,19 @@ nhận diện nền tảng / permalink.
   Không cần gửi thư mục trong message.
 - **Tự cập nhật yt-dlp** (`yt-dlp -U`) tối đa 1 lần/ngày, trước lần tải đầu tiên trong ngày (nền tảng đổi cách làm liên tục).
 
-#### 5.4.1 Chất lượng video
-*(Chờ chủ dự án chọn — xem câu hỏi mở.)*
+#### 5.4.1 Chất lượng video — 2 lựa chọn
+Chủ dự án chốt: **có cả hai**. Video đi đường yt-dlp hiện **2 nút** cạnh nhau:
+
+| Nút | Ý nghĩa | Chuỗi sắp xếp yt-dlp |
+|---|---|---|
+| **⬇** (mặc định) | Dễ mở ở mọi nơi: H.264 + AAC trong `.mp4` (YouTube thường tối đa 1080p; trang không có H.264 thì yt-dlp tự lấy bản tốt nhất có sẵn) | `-S "vcodec:h264,res,acodec:m4a"` |
+| **MAX** | Nét nhất (2K/4K nếu có), thường là AV1/VP9 | `-S "res,ext:mp4:m4a"` |
+
+Video file thường (tải trực tiếp) và ảnh chỉ có 1 nút như cũ.
+
+**Gợi ý trình phát:** sau khi tải xong, nếu codec video là AV1/VP9 hoặc độ cao > 1080, thông báo "Tải xong" ghi thêm
+"video 2K/4K (AV1/VP9) — nếu không mở được, hãy cài VLC" kèm nút **Tải VLC** mở https://www.videolan.org/vlc/
+(VLC miễn phí, mở được mọi định dạng này).
 
 ### 5.5 Cookie đăng nhập (cho nội dung cần đăng nhập: Instagram, Facebook, X, ...)
 - `--cookies-from-browser chrome` **không dùng được** trên Windows từ Chrome 127 (App-Bound Encryption).
@@ -160,7 +171,7 @@ cần và không commit.
 ### 5.7 Phản hồi cho người dùng
 - Nút nổi hiện trạng thái/tiến độ khi chuột còn trên media.
 - **Badge** trên icon extension: số lượt tải yt-dlp đang chạy.
-- **Thông báo Chrome** (`chrome.notifications`) khi tải yt-dlp xong (tên file) hoặc lỗi (lý do).
+- **Thông báo Chrome** (`chrome.notifications`) khi tải yt-dlp xong (tên file; kèm gợi ý VLC nếu 2K/4K — xem 5.4.1) hoặc lỗi (lý do).
 - Chưa cài helper mà bấm tải video nền tảng → thông báo "Chưa cài trình hỗ trợ — chạy `native-host\setup.bat`".
 
 ### 5.8 Quyền extension
