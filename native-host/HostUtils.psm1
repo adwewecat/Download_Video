@@ -345,27 +345,38 @@ function Get-DownloadsFolder {
 function Get-SanitizedFileName {
   [CmdletBinding()]
   param (
-    [Parameter(Mandatory = $true)]
-    [string]$Title,
+    [Parameter(Mandatory = $false)]
+    [AllowEmptyString()]
+    [string]$Title = '',
 
     [Parameter(Mandatory = $false)]
-    [string]$Ext = 'mp4'
+    [string]$Ext = 'mp4',
+
+    [Parameter(Mandatory = $false)]
+    [string]$Timestamp = ''
   )
 
   # Loại bỏ ký tự cấm của Windows: \ / : * ? " < > |
-  $clean = $Title -replace '[\\/:*?"<>|]', ' '
+  $clean = if ($Title) { $Title -replace '[\\/:*?"<>|]', ' ' } else { '' }
   # Loại bỏ hậu tố thường gặp trên web nếu có (như - YouTube)
   $clean = $clean -replace '\s*-\s*YouTube\s*$', ''
   # Thu gọn khoảng trắng thừa
   $clean = ($clean -replace '\s+', ' ').Trim()
 
-  if (-not $clean) {
-    $clean = "video"
+  # Giới hạn độ dài tên file (120 ký tự để chừa chỗ cho timestamp)
+  if ($clean.Length -gt 120) {
+    $clean = $clean.Substring(0, 120).Trim()
   }
 
-  # Giới hạn độ dài tên file (150 ký tự)
-  if ($clean.Length -gt 150) {
-    $clean = $clean.Substring(0, 150).Trim()
+  if ($Timestamp) {
+    if ($clean -and $clean -ne 'video' -and $clean -ne 'audio') {
+      return "${clean}_${Timestamp}.${Ext}"
+    }
+    return "${Timestamp}.${Ext}"
+  }
+
+  if (-not $clean) {
+    $clean = if ($Ext -eq 'mp3') { "audio" } else { "video" }
   }
 
   return "$clean.$Ext"

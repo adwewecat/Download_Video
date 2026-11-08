@@ -49,6 +49,18 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Cập nhật: Thêm timestamp (yyyyMMddHHmmssfff) vào tên file video để chống trùng lặp
+- **Định làm:**
+  1. Trong `native-host/HostUtils.psm1`: cập nhật hàm `Get-SanitizedFileName` hỗ trợ thêm tham số `-Timestamp` theo định dạng `yyyyMMddHHmmssfff` (VD: `20261108191301443`).
+     - Nếu có tiêu đề: tạo tên `<TieuDe>_<Timestamp>.<ext>` (VD: `02067_20261108191301443.mp4`).
+     - Nếu không có tiêu đề: tạo tên `<Timestamp>.<ext>` (VD: `20261108191301443.mp4`).
+  2. Trong `native-host/host.ps1`: tự động sinh timestamp thời gian thực chính xác tới mili-giây khi hiển thị hộp thoại Save As.
+  3. Cập nhật unit test trong `tests/host-utils.test.js`, chạy test toàn bộ.
+  4. Cập nhật `README.md`, `HUONG_DAN_CAI_DAT.txt`, `GEMINI.md`, commit và `git push origin main`.
+- **Vì sao:** Người dùng tải nhiều video liên tiếp thường bị trùng tên file mặc định (như `02067.mp4` hoặc `Instagram.mp4`), Windows hiện cảnh báo hỏi ghi đè và người dùng phải mất công tự tay sửa lại tên. Thêm dấu thời gian mili-giây giúp 100% tên file không bao giờ trùng, tải về ngay không cần sửa.
+- **Kết quả:** Đã hoàn thành. Hộp thoại Save As tự động gợi ý tên file có hậu tố timestamp mili-giây dạng `20261108191301443`. Toàn bộ 32/32 tests PASS. Sẵn sàng commit và push.
+
+
 ### 2026-11-08 — Sửa lỗi: Tải video stream từ vlxx.app / vlstream.net (đuôi lạ .vl & HLS blob embed)
 - **Định làm:**
   1. Hỗ trợ trích xuất luồng video stream HLS từ các trình phát nhúng (embed players như `play.vlstream.net`, JWPlayer) khi thẻ video dùng `blob:` URL:

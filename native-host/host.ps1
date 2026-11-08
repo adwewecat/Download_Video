@@ -112,11 +112,8 @@ try {
     # Hiển thị hộp thoại Save As để người dùng chọn thư mục và đặt tên file nếu muốn
     if (-not $noPrompt) {
       $fileExt = if ($quality -eq 'mp3') { 'mp3' } else { 'mp4' }
-      $defaultFileName = if ($title) {
-        Get-SanitizedFileName -Title $title -Ext $fileExt
-      } else {
-        if ($fileExt -eq 'mp3') { "audio.mp3" } else { "video.mp4" }
-      }
+      $timestamp = (Get-Date).ToString("yyyyMMddHHmmssfff")
+      $defaultFileName = Get-SanitizedFileName -Title $title -Ext $fileExt -Timestamp $timestamp
       $dialogTitle = if ($fileExt -eq 'mp3') { "Chọn nơi lưu âm thanh MP3..." } else { "Chọn nơi lưu video..." }
       $chosenFile = Show-SaveFileDialog -InitialDir $outDir -DefaultFileName $defaultFileName -Title $dialogTitle -Ext $fileExt
       if (-not $chosenFile) {

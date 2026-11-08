@@ -218,6 +218,20 @@ test('Get-SanitizedFileName: loại bỏ ký tự cấm của Windows và giữ 
   assert.ok(res.t1.endsWith('.mp4'));
 });
 
+test('Get-SanitizedFileName: thêm timestamp chống trùng lặp theo format yyyyMMddHHmmssfff', () => {
+  const cmd = `
+    $ts = '20261108191301443'
+    $t1 = Get-SanitizedFileName -Title '02067' -Ext 'mp4' -Timestamp $ts
+    $t2 = Get-SanitizedFileName -Title '' -Ext 'mp4' -Timestamp $ts
+    $t3 = Get-SanitizedFileName -Title 'audio' -Ext 'mp3' -Timestamp $ts
+    [PSCustomObject]@{ t1 = $t1; t2 = $t2; t3 = $t3 } | ConvertTo-Json -Compress
+  `;
+  const res = JSON.parse(ps(cmd));
+  assert.equal(res.t1, '02067_20261108191301443.mp4');
+  assert.equal(res.t2, '20261108191301443.mp4');
+  assert.equal(res.t3, '20261108191301443.mp3');
+});
+
 test('Resolve-StreamUrl: giữ nguyên direct stream và trích xuất từ embed nếu cần', () => {
   const cmd = `
     $u1 = Resolve-StreamUrl -Url 'https://cdn.com/video.m3u8'

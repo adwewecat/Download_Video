@@ -75,6 +75,7 @@ BƯỚC 3: NẠP TIỆN ÍCH VÀO GOOGLE CHROME
        + Bấm [MAX] : Tải bản nét nhất (2K / 4K).
        + Bấm [MP3] : Tải riêng bản nhạc / âm thanh MP3 chất lượng cao 320kbps.
 4. Hộp thoại "Save As" của Windows sẽ hiện lên:
+   - Tự động điền sẵn tên video kèm dấu thời gian chính xác tới mili-giây (VD: TênVideo_20261108191301443.mp4) giúp không bao giờ bị trùng tên hoặc bị hỏi ghi đè.
    - Cho phép bạn chọn lưu vào Desktop, ổ D, Thư mục Downloads tuỳ ý.
    - Có thể đổi tên file theo ý muốn rồi bấm Save (hoặc bấm Cancel nếu muốn huỷ).
 5. Khi tải xong:
