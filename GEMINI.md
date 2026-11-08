@@ -28,21 +28,31 @@
 
 ## 3. Trạng thái hiện tại
 
-- **Giai đoạn:** Thiết kế (chưa có code extension). Đã chốt hướng C.
-- Đã có: `README.md`, `GEMINI.md`, bản thiết kế `docs/superpowers/specs/2026-11-08-download-media-extension-design.md`,
-  `tests/media-utils.test.js` (test viết trước, chưa có code để chạy qua).
+- **Giai đoạn:** **v1.0.0 Hoàn Thành & Sẵn Sàng Sử Dụng**.
+- **Đã có:**
+  - Tiện ích Chrome Extension Manifest V3 (`extension/`) với Shadow DOM không vỡ layout, phát hiện đa tầng media, hỗ trợ tải trực tiếp và tải nền tảng.
+  - Native Messaging Host (`native-host/`) bằng PowerShell thuần, tự động hoá hoàn toàn qua `setup.bat` (tải yt-dlp, ffmpeg, Deno, sinh manifest, đăng ký Registry HKCU).
+  - Hỗ trợ 2 nút tải video: **⬇** (tương thích cao H.264+AAC) và **MAX** (2K/4K AV1/VP9).
+  - Tự động gợi ý và cung cấp nút mở trang tải VLC khi hoàn tất video 2K/4K chuẩn mới.
+  - Test suite tự động 26/26 tests PASS (`node --test "tests/*.test.js"`).
+  - Trang thử tay `tests/manual/test-page.html` đầy đủ 9 tình huống media.
 
 ---
 
 ## 4. Việc tiếp theo
 
-- [ ] Chủ dự án chọn cách triển khai kế hoạch (Subagent-driven hay Native).
-- [ ] Code theo kế hoạch `docs/superpowers/plans/2026-11-08-download-media-extension.md`.
-- [ ] Hoàn thành và bàn giao v1.0.0.
+- [x] Hoàn thành và bàn giao v1.0.0.
+- [ ] *(Ý tưởng v2)*: Bổ sung tuỳ chọn tải riêng âm thanh MP3.
+- [ ] *(Ý tưởng v2)*: Hỗ trợ tải nguyên danh sách phát (Playlist / Kênh) nếu người dùng có nhu cầu.
 
 ---
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
+
+### 2026-11-08 — Task 9: Hoàn thiện tài liệu README.md & nghiệm thu toàn bộ v1.0.0
+- **Định làm:** Viết tài liệu hướng dẫn đầy đủ trong `README.md` (kiến trúc, cài đặt 1-click kể cả khi cài lại Windows, hướng dẫn dùng 2 nút ⬇ và MAX, cấu trúc thư mục, chạy test); cập nhật trạng thái `GEMINI.md`.
+- **Vì sao:** Đảm bảo bất kỳ ai hoặc AI nào nhận dự án cũng có thể cài đặt và sử dụng ngay lập tức mà không cần hỏi thêm.
+- **Kết quả:** Đã hoàn thành. Toàn bộ 26/26 test PASS, không có lỗi / cảnh báo nào. Bản v1.0.0 hoàn chỉnh được đẩy lên GitHub.
 
 ### 2026-11-08 — Task 8: Nối extension ↔ host (yt-dlp job, tiến độ %, cookie, badge, thông báo & gợi ý VLC)
 - **Định làm:** Hoàn thiện `background.js` điều phối Native Messaging host, thu thập cookie cho mạng xã hội, quản lý badge số lượng tải ngầm, gửi thông báo Chrome (kèm nút tải VLC cho video 2K/4K AV1/VP9), và xử lý phản hồi tiến độ về `content.js`.
