@@ -249,9 +249,13 @@
       }
 
       case 'instagram': {
-        const match = /^\/(p|reel|stories)\/([^/?#]+)/.exec(path);
+        if (path.startsWith('/stories')) {
+          return `${origin}${path}`;
+        }
+        const match = /^\/(p|reel|reels)\/([^/?#]+)/.exec(path);
         if (match) {
-          return `${origin}/${match[1]}/${match[2]}/`;
+          const kind = match[1] === 'reels' ? 'reel' : match[1];
+          return `${origin}/${kind}/${match[2]}/`;
         }
         return null;
       }

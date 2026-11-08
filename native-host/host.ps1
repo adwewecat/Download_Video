@@ -77,7 +77,7 @@ try {
     if (-not (Test-Path $ytdlpExe)) {
       Write-NativeMessage -Stream $stdout -Object @{
         type    = 'error'
-        message = 'Chưa cài trình hỗ trợ — chạy native-host\setup.bat'
+        message = 'Chua cai trinh ho tro - hay chay native-host\setup.bat'
       }
       exit 0
     }
@@ -106,13 +106,19 @@ try {
 
     # Hiển thị hộp thoại Save As để người dùng chọn thư mục và đặt tên file nếu muốn
     if (-not $noPrompt) {
-      $defaultFileName = if ($title) { Get-SanitizedFileName -Title $title -Ext 'mp4' } else { "video.mp4" }
-      $chosenFile = Show-SaveFileDialog -InitialDir $outDir -DefaultFileName $defaultFileName -Title "Chọn nơi lưu video..."
+      $fileExt = if ($quality -eq 'mp3') { 'mp3' } else { 'mp4' }
+      $defaultFileName = if ($title) {
+        Get-SanitizedFileName -Title $title -Ext $fileExt
+      } else {
+        if ($fileExt -eq 'mp3') { "audio.mp3" } else { "video.mp4" }
+      }
+      $dialogTitle = if ($fileExt -eq 'mp3') { "Chọn nơi lưu âm thanh MP3..." } else { "Chọn nơi lưu video..." }
+      $chosenFile = Show-SaveFileDialog -InitialDir $outDir -DefaultFileName $defaultFileName -Title $dialogTitle -Ext $fileExt
       if (-not $chosenFile) {
         # Người dùng bấm Cancel trên hộp thoại Save As
         Write-NativeMessage -Stream $stdout -Object @{
           type    = 'cancelled'
-          message = 'Người dùng đã huỷ tải'
+          message = 'Nguoi dung da huy tai'
         }
         exit 0
       }
@@ -231,9 +237,16 @@ try {
   # Lệnh không nhận diện
   Write-NativeMessage -Stream $stdout -Object @{
     type    = 'error'
-    message = "Lệnh không hợp lệ: $action"
+    message = "Lenh khong hop le: $action"
   }
 } catch {
+  try {
+    $errText = $_.Exception.ToString()
+    $debugLog = Join-Path $env:TEMP "dvi-native-host.log"
+    $timestamp = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
+    [System.IO.File]::AppendAllText($debugLog, "[$timestamp] ERROR: $errText`r`n", [System.Text.Encoding]::UTF8)
+  } catch {}
+
   try {
     Write-NativeMessage -Stream $stdout -Object @{
       type    = 'error'

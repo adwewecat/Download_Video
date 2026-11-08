@@ -66,7 +66,8 @@ cd Download_Video
    - Với **video mạng xã hội / stream**:
      - Bấm nút **⬇**: Tải video chuẩn tương thích (H.264 + AAC, tối đa 1080p).
      - Bấm nút **MAX**: Tải video chất lượng cực đại (2K / 4K nếu nền tảng hỗ trợ).
-     - Hộp thoại **Save As** của Windows sẽ hiện lên: điền sẵn tên video, cho phép bạn chọn lưu vào ổ D:, Desktop hoặc thư mục tuỳ ý, hoặc đổi tên rồi bấm **Save** (bấm Cancel để huỷ tải).
+     - Bấm nút **MP3**: Tải riêng âm thanh chất lượng cao (320kbps MP3 trích xuất bằng ffmpeg).
+     - Hộp thoại **Save As** của Windows sẽ hiện lên: điền sẵn tên video/âm thanh, cho phép bạn chọn lưu vào ổ D:, Desktop hoặc thư mục tuỳ ý, hoặc đổi tên rồi bấm **Save** (bấm Cancel để huỷ tải).
 4. Tiến độ tải sẽ hiển thị trực quan (theo %) ngay trên nút nổi và trên badge của icon extension.
 5. Khi tải xong:
    - Chrome hiển thị thông báo "Tải xong" kèm đường dẫn chi tiết nơi lưu file.

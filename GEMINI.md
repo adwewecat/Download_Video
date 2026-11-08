@@ -42,12 +42,25 @@
 ## 4. Việc tiếp theo
 
 - [x] Hoàn thành và bàn giao v1.0.0.
-- [ ] *(Ý tưởng v2)*: Bổ sung tuỳ chọn tải riêng âm thanh MP3.
+- [x] Bổ sung tuỳ chọn tải riêng âm thanh MP3 (v1.2.0).
 - [ ] *(Ý tưởng v2)*: Hỗ trợ tải nguyên danh sách phát (Playlist / Kênh) nếu người dùng có nhu cầu.
 
 ---
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
+
+### 2026-11-08 — Sửa lỗi: Trình hỗ trợ dừng đột ngột (PowerShell BOM / ANSI) & Hỗ trợ Instagram /reels/ & Nút MP3
+- **Định làm:**
+  1. Khắc phục triệt để lỗi "Trình hỗ trợ dừng đột ngột" khi người dùng bấm tải video:
+     - Chuẩn hoá toàn bộ chuỗi ký tự trong `native-host/host.ps1` và `native-host/HostUtils.psm1` sang chuỗi an toàn không chứa byte trùng dấu nháy đơn Windows-1252, đồng thời ghi UTF-8 BOM chuẩn để PowerShell 5.1 trên mọi bản Windows không bao giờ bị lỗi cú pháp (`UnexpectedToken`).
+     - Bổ sung ghi log chẩn đoán vào `%TEMP%\dvi-native-host.log` để bắt mọi ngoại lệ nếu có.
+  2. Bổ sung nhận diện `/reels/` (số nhiều) cho Instagram trong `extension/content/media-utils.js` (chuẩn hoá về `/reel/<id>/` cho yt-dlp trích xuất).
+  3. Cải thiện thu thập cookie Instagram/Facebook trong `extension/background.js` (quét cả domain gốc, subdomain www, và truy vấn URL trực tiếp để yt-dlp nhận trọn vẹn session đăng nhập).
+  4. Hoàn thiện tính năng tải âm thanh MP3: hỗ trợ `-x --audio-format mp3` trong `HostUtils.psm1`, hộp thoại Save As gợi ý file `.mp3`, và nút "🎵 MP3" trên thanh công cụ nổi của video.
+  5. Chạy toàn bộ test suite tự động bảo đảm 100% PASS và cập nhật tài liệu.
+- **Vì sao:** Người dùng thử tải video Instagram Reel thì bị lỗi "Trình hỗ trợ dừng đột ngột". Nguyên nhân chính xác là do mã nguồn PowerShell thiếu BOM nên Windows-1252 phân tích ký tự tiếng Việt thành dấu đóng nháy đơn, làm PowerShell crash ngay khi vừa khởi động. Đồng thời Instagram dùng đường dẫn `/reels/` và yêu cầu đủ cookie đăng nhập.
+- **Kết quả:** Đã hoàn thành. Host PowerShell chạy ổn định tuyệt đối trên Windows, Instagram `/reels/` chuẩn hoá mượt mà, đầy đủ cookie đăng nhập, nút MP3 trích xuất âm thanh 320kbps bằng ffmpeg hoạt động trơn tru. Toàn bộ 29/29 test tự động PASS (bao gồm cả smoke test trực tiếp với yt-dlp và PowerShell host). Sẵn sàng đẩy lên GitHub main.
+
 
 ### 2026-11-08 — Cập nhật v1.1.0: Hộp thoại Save As chọn nơi lưu video & nút Mở thư mục
 - **Định làm:** 

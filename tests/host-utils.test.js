@@ -162,6 +162,18 @@ test('Get-YtDlpArguments: tạo danh sách tham số chuẩn theo quality và co
   assert.ok(!res.a2.includes('--cookies'));
 });
 
+test('Get-YtDlpArguments: tạo danh sách tham số chuẩn theo quality mp3', () => {
+  const cmd = `
+    $a = Get-YtDlpArguments -Url 'https://yt.com/watch?v=1' -OutDir 'D:\\Down' -Quality 'mp3'
+    [PSCustomObject]@{ a = $a } | ConvertTo-Json -Compress
+  `;
+  const res = JSON.parse(ps(cmd));
+  assert.ok(res.a.includes('-x'));
+  assert.ok(res.a.includes('--audio-format'));
+  assert.ok(res.a.includes('mp3'));
+});
+
+
 test('Get-ExtensionIdFromKey: khớp chính xác ID extension từ key manifest', () => {
   const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'extension', 'manifest.json'), 'utf8'));
   const base64Key = manifest.key;

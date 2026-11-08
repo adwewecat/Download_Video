@@ -122,6 +122,7 @@ test('isPermalink: nhận diện URL bài viết / video trên từng nền tả
   assert.ok(U.isPermalink('x', 'https://twitter.com/user/status/123456/photo/1'));
   assert.ok(!U.isPermalink('x', 'https://x.com/user'));
   assert.ok(U.isPermalink('instagram', 'https://www.instagram.com/reel/Cx1/'));
+  assert.ok(U.isPermalink('instagram', 'https://www.instagram.com/reels/DA9l_HlsHha/'));
   assert.ok(U.isPermalink('instagram', 'https://www.instagram.com/p/Cx1/'));
   assert.ok(!U.isPermalink('instagram', 'https://www.instagram.com/explore/'));
   assert.ok(U.isPermalink('threads', 'https://www.threads.net/@u/post/Cx1'));
@@ -143,6 +144,14 @@ test('normalizePermalink: chuẩn hoá permalink về dạng canonical', () => {
   assert.equal(
     U.normalizePermalink('instagram', 'https://www.instagram.com/reel/Cx1/?utm_source=ig_web'),
     'https://www.instagram.com/reel/Cx1/'
+  );
+  assert.equal(
+    U.normalizePermalink('instagram', 'https://www.instagram.com/reels/DA9l_HlsHha/?utm_source=ig_web'),
+    'https://www.instagram.com/reel/DA9l_HlsHha/'
+  );
+  assert.equal(
+    U.normalizePermalink('instagram', 'https://www.instagram.com/stories/username/12345/'),
+    'https://www.instagram.com/stories/username/12345/'
   );
   assert.equal(U.normalizePermalink('x', 'https://x.com/home'), null);
 });

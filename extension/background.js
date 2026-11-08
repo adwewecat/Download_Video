@@ -118,24 +118,31 @@ async function getCookiesForPlatform(platform) {
   const cookieList = [];
   const seen = new Set();
 
+  function addCookies(arr) {
+    if (!Array.isArray(arr)) return;
+    for (const c of arr) {
+      const key = `${c.domain}|${c.path}|${c.name}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        cookieList.push({
+          domain: c.domain,
+          hostOnly: c.hostOnly,
+          path: c.path,
+          secure: c.secure,
+          expirationDate: c.expirationDate,
+          name: c.name,
+          value: c.value
+        });
+      }
+    }
+  }
+
   for (const domain of domains) {
     try {
-      const cookies = await chrome.cookies.getAll({ domain });
-      for (const c of cookies) {
-        const key = `${c.domain}|${c.path}|${c.name}`;
-        if (!seen.has(key)) {
-          seen.add(key);
-          cookieList.push({
-            domain: c.domain,
-            hostOnly: c.hostOnly,
-            path: c.path,
-            secure: c.secure,
-            expirationDate: c.expirationDate,
-            name: c.name,
-            value: c.value
-          });
-        }
-      }
+      addCookies(await chrome.cookies.getAll({ domain }));
+      addCookies(await chrome.cookies.getAll({ domain: '.' + domain }));
+      addCookies(await chrome.cookies.getAll({ url: `https://${domain}/` }));
+      addCookies(await chrome.cookies.getAll({ url: `https://www.${domain}/` }));
     } catch {
       // Bỏ qua lỗi đọc cookie từng domain
     }

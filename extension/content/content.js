@@ -97,6 +97,12 @@
     .dvi-btn-max:hover {
       background: #6a1b9a;
     }
+    .dvi-btn-mp3 {
+      background: #00897b;
+    }
+    .dvi-btn-mp3:hover {
+      background: #00695c;
+    }
     .dvi-icon {
       width: 14px;
       height: 14px;
@@ -155,6 +161,14 @@
   btnMax.title = 'Tải video nét nhất (2K/4K)';
   btnMax.style.display = 'none';
   bar.appendChild(btnMax);
+
+  // Nút tải riêng âm thanh MP3 cho video
+  const btnMp3 = document.createElement('button');
+  btnMp3.className = 'dvi-btn dvi-btn-mp3';
+  btnMp3.textContent = 'MP3';
+  btnMp3.title = 'Tải riêng âm thanh MP3';
+  btnMp3.style.display = 'none';
+  bar.appendChild(btnMp3);
 
   // Vùng thông báo trạng thái
   const statusBusy = document.createElement('span');
@@ -249,6 +263,7 @@
       // idle
       const isYtDlpVideo = activeTarget && activeTarget.mediaType === 'video' && activeTarget.route === 'ytdlp';
       btnMax.style.display = isYtDlpVideo ? 'inline-flex' : 'none';
+      btnMp3.style.display = isYtDlpVideo ? 'inline-flex' : 'none';
 
       if (activeTarget && activeTarget.mediaType === 'video') {
         btnDownload.title = isYtDlpVideo ? 'Tải video (tương thích cao)' : 'Tải video';
@@ -551,6 +566,12 @@
     e.preventDefault();
     e.stopPropagation();
     triggerDownload('best');
+  });
+
+  btnMp3.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    triggerDownload('mp3');
   });
 
   // Lắng nghe cập nhật tiến độ / kết quả từ service worker (phục vụ Task 8)

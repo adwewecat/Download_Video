@@ -217,22 +217,39 @@ function Get-YtDlpArguments {
     [string]$OutTemplate = '%(title).150B [%(id)s].%(ext)s'
   )
 
-  $sortArg = if ($Quality -eq 'best') { 'res,ext:mp4:m4a' } else { 'vcodec:h264,res,acodec:m4a' }
+  if ($Quality -eq 'mp3') {
+    # Che do trich xuat am thanh MP3 bang ffmpeg
+    [string[]]$argsList = @(
+      '--encoding', 'utf-8',
+      '--newline',
+      '--progress',
+      '--progress-template', 'download:[dvi] %(progress._percent_str)s',
+      '--print', 'after_move:[dvifile]%(filepath)s',
+      '-x',
+      '--audio-format', 'mp3',
+      '--audio-quality', '0',
+      '--no-playlist',
+      '-P', $OutDir,
+      '-o', $OutTemplate
+    )
+  } else {
+    $sortArg = if ($Quality -eq 'best') { 'res,ext:mp4:m4a' } else { 'vcodec:h264,res,acodec:m4a' }
 
-  [string[]]$argsList = @(
-    '--encoding', 'utf-8',
-    '--newline',
-    '--progress',
-    '--progress-template', 'download:[dvi] %(progress._percent_str)s',
-    '--print', 'after_move:[dvifile]%(filepath)s',
-    '--print', 'after_move:[dvimeta]%(vcodec)s;%(height)s',
-    '-f', 'bv*+ba/b',
-    '-S', $sortArg,
-    '--merge-output-format', 'mp4',
-    '--no-playlist',
-    '-P', $OutDir,
-    '-o', $OutTemplate
-  )
+    [string[]]$argsList = @(
+      '--encoding', 'utf-8',
+      '--newline',
+      '--progress',
+      '--progress-template', 'download:[dvi] %(progress._percent_str)s',
+      '--print', 'after_move:[dvifile]%(filepath)s',
+      '--print', 'after_move:[dvimeta]%(vcodec)s;%(height)s',
+      '-f', 'bv*+ba/b',
+      '-S', $sortArg,
+      '--merge-output-format', 'mp4',
+      '--no-playlist',
+      '-P', $OutDir,
+      '-o', $OutTemplate
+    )
+  }
 
   if ($CookieFile) {
     $argsList += @('--cookies', $CookieFile)
@@ -321,28 +338,39 @@ function Show-SaveFileDialog {
     [string]$DefaultFileName,
 
     [Parameter(Mandatory = $false)]
-    [string]$Title = "Lưu video dưới dạng..."
+    [string]$Title = "Lưu tệp dưới dạng...",
+
+    [Parameter(Mandatory = $false)]
+    [string]$Ext = "mp4"
   )
 
-  Add-Type -AssemblyName System.Windows.Forms | Out-Null
+  try {
+    Add-Type -AssemblyName System.Windows.Forms | Out-Null
 
-  $sfd = New-Object System.Windows.Forms.SaveFileDialog
-  $sfd.Title = $Title
-  $sfd.InitialDirectory = $InitialDir
-  $sfd.FileName = $DefaultFileName
-  $sfd.Filter = "Video MP4 (*.mp4)|*.mp4|Tất cả tệp (*.*)|*.*"
-  $sfd.FilterIndex = 1
-  $sfd.RestoreDirectory = $true
+    $sfd = New-Object System.Windows.Forms.SaveFileDialog
+    $sfd.Title = $Title
+    $sfd.InitialDirectory = $InitialDir
+    $sfd.FileName = $DefaultFileName
+    if ($Ext -eq 'mp3') {
+      $sfd.Filter = "Tệp MP3 (*.mp3)|*.mp3|Tất cả tệp (*.*)|*.*"
+    } else {
+      $sfd.Filter = "Video MP4 (*.mp4)|*.mp4|Tất cả tệp (*.*)|*.*"
+    }
+    $sfd.FilterIndex = 1
+    $sfd.RestoreDirectory = $true
 
-  # Sử dụng form topmost ẩn để hộp thoại luôn nổi lên trên trình duyệt
-  $form = New-Object System.Windows.Forms.Form
-  $form.TopMost = $true
+    # Su dung form topmost an de hop thoai luon noi len tren trinh duyet
+    $form = New-Object System.Windows.Forms.Form
+    $form.TopMost = $true
 
-  $res = $sfd.ShowDialog($form)
-  $form.Dispose()
+    $res = $sfd.ShowDialog($form)
+    $form.Dispose()
 
-  if ($res -eq [System.Windows.Forms.DialogResult]::OK -and $sfd.FileName) {
-    return $sfd.FileName
+    if ($res -eq [System.Windows.Forms.DialogResult]::OK -and $sfd.FileName) {
+      return $sfd.FileName
+    }
+  } catch {
+    # Neu Windows Forms gap loi bat thuong thi tra ve null
   }
 
   return $null
