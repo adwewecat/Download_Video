@@ -44,6 +44,11 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Task 8: Nối extension ↔ host (yt-dlp job, tiến độ %, cookie, badge, thông báo & gợi ý VLC)
+- **Định làm:** Hoàn thiện `background.js` điều phối Native Messaging host, thu thập cookie cho mạng xã hội, quản lý badge số lượng tải ngầm, gửi thông báo Chrome (kèm nút tải VLC cho video 2K/4K AV1/VP9), và xử lý phản hồi tiến độ về `content.js`.
+- **Vì sao:** Đảm bảo trải nghiệm tải video nền tảng hoàn chỉnh từ trang web qua extension tới native host và báo về cho người dùng.
+- **Kết quả:** Đã hoàn thành. Background quản lý job qua UUID, kết nối Native Host, thu thập cookie domain, cập nhật badge số tác vụ, hiển thị notification thành công/thất bại kèm gợi ý VLC khi phát hiện AV1/VP9 hoặc độ cao > 1080p.
+
 ### 2026-11-08 — Task 7: Cài đặt tự động một lần (setup.bat + setup.ps1)
 - **Định làm:** Viết `native-host/setup.bat` và `native-host/setup.ps1` để tự động tải yt-dlp, ffmpeg, Deno; sinh file manifest Native Host theo ID extension; và đăng ký Registry `HKCU` cho Chrome.
 - **Vì sao:** Đơn giản hoá tối đa quá trình cài đặt: người dùng chỉ cần click đúp `setup.bat` một lần duy nhất, kể cả khi cài lại Windows.

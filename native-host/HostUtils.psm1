@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
   HostUtils.psm1 - Các hàm tiện ích thuần cho Chrome Native Messaging Host (PowerShell).
   Bao gồm đọc/ghi gói tin nhị phân, định dạng cookie, trích xuất log yt-dlp, và tính Extension ID.
