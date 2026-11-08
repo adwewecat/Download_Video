@@ -130,7 +130,9 @@ test('isPermalink: nhận diện URL bài viết / video trên từng nền tả
   assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/watch/?v=123'));
   assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/reel/123'));
   assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/somepage/videos/123/'));
+  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/stories/1234567890/'));
   assert.ok(U.isPermalink('facebook', 'https://fb.watch/abc/'));
+  assert.ok(U.isPermalink('instagram', 'https://www.instagram.com/stories/username/1234567890/'));
 });
 
 test('normalizePermalink: chuẩn hoá permalink về dạng canonical', () => {

@@ -49,6 +49,14 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Cập nhật v1.1.0: Hộp thoại Save As chọn nơi lưu video & nút Mở thư mục
+- **Định làm:** 
+  1. Khi tải video: hiển thị hộp thoại Save As của Windows để người dùng chọn thư mục (ổ D:, Desktop, Downloads,...) và đổi tên file trước khi tải. Tự động điền sẵn tên video từ tiêu đề trang. Nếu bấm Huỷ (Cancel) thì dừng gọn gàng.
+  2. Khi tải xong: thông báo hiển thị rõ đường dẫn thư mục lưu kèm nút "📂 Mở thư mục". Bấm vào sẽ mở Windows Explorer và bôi đen sẵn file video vừa tải.
+  3. Bổ sung nhận diện permalink cho Facebook & Instagram Stories (`/stories/...`).
+- **Vì sao:** Người dùng phản hồi tải video không thấy hỏi nơi lưu và không biết video lưu ở đâu; đồng thời hỗ trợ Story theo ảnh người dùng gửi.
+- **Kết quả:** Đã hoàn thành. Hộp thoại Save As hoạt động mượt mà (topmost form), nút Mở thư mục tích hợp vào notification, permalink Story Facebook/Instagram đầy đủ. Toàn bộ 28/28 test PASS. Đã đẩy lên GitHub main.
+
 ### 2026-11-08 — Task 9: Hoàn thiện tài liệu README.md & nghiệm thu toàn bộ v1.0.0
 - **Định làm:** Viết tài liệu hướng dẫn đầy đủ trong `README.md` (kiến trúc, cài đặt 1-click kể cả khi cài lại Windows, hướng dẫn dùng 2 nút ⬇ và MAX, cấu trúc thư mục, chạy test); cập nhật trạng thái `GEMINI.md`.
 - **Vì sao:** Đảm bảo bất kỳ ai hoặc AI nào nhận dự án cũng có thể cài đặt và sử dụng ngay lập tức mà không cần hỏi thêm.

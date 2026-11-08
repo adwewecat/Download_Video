@@ -1,7 +1,8 @@
-<#
+﻿<#
 .SYNOPSIS
   HostUtils.psm1 - Các hàm tiện ích thuần cho Chrome Native Messaging Host (PowerShell).
-  Bao gồm đọc/ghi gói tin nhị phân, định dạng cookie, trích xuất log yt-dlp, và tính Extension ID.
+  Bao gồm đọc/ghi gói tin nhị phân, định dạng cookie, trích xuất log yt-dlp, tính Extension ID,
+  hộp thoại Save As và mở thư mục Explorer.
 #>
 
 function Read-NativeMessage {
@@ -205,10 +206,15 @@ function Get-YtDlpArguments {
     [string]$OutDir,
 
     [Parameter(Mandatory = $false)]
+    [AllowNull()]
+    [AllowEmptyString()]
     [string]$CookieFile,
 
     [Parameter(Mandatory = $false)]
-    [string]$Quality = 'compatible'
+    [string]$Quality = 'compatible',
+
+    [Parameter(Mandatory = $false)]
+    [string]$OutTemplate = '%(title).150B [%(id)s].%(ext)s'
   )
 
   $sortArg = if ($Quality -eq 'best') { 'res,ext:mp4:m4a' } else { 'vcodec:h264,res,acodec:m4a' }
@@ -225,7 +231,7 @@ function Get-YtDlpArguments {
     '--merge-output-format', 'mp4',
     '--no-playlist',
     '-P', $OutDir,
-    '-o', '%(title).150B [%(id)s].%(ext)s'
+    '-o', $OutTemplate
   )
 
   if ($CookieFile) {
@@ -276,6 +282,89 @@ function Get-DownloadsFolder {
   return (Join-Path $env:USERPROFILE "Downloads")
 }
 
+function Get-SanitizedFileName {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$Title,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Ext = 'mp4'
+  )
+
+  # Loại bỏ ký tự cấm của Windows: \ / : * ? " < > |
+  $clean = $Title -replace '[\\/:*?"<>|]', ' '
+  # Loại bỏ hậu tố thường gặp trên web nếu có (như - YouTube)
+  $clean = $clean -replace '\s*-\s*YouTube\s*$', ''
+  # Thu gọn khoảng trắng thừa
+  $clean = ($clean -replace '\s+', ' ').Trim()
+
+  if (-not $clean) {
+    $clean = "video"
+  }
+
+  # Giới hạn độ dài tên file (150 ký tự)
+  if ($clean.Length -gt 150) {
+    $clean = $clean.Substring(0, 150).Trim()
+  }
+
+  return "$clean.$Ext"
+}
+
+function Show-SaveFileDialog {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$InitialDir,
+
+    [Parameter(Mandatory = $true)]
+    [string]$DefaultFileName,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Title = "Lưu video dưới dạng..."
+  )
+
+  Add-Type -AssemblyName System.Windows.Forms | Out-Null
+
+  $sfd = New-Object System.Windows.Forms.SaveFileDialog
+  $sfd.Title = $Title
+  $sfd.InitialDirectory = $InitialDir
+  $sfd.FileName = $DefaultFileName
+  $sfd.Filter = "Video MP4 (*.mp4)|*.mp4|Tất cả tệp (*.*)|*.*"
+  $sfd.FilterIndex = 1
+  $sfd.RestoreDirectory = $true
+
+  # Sử dụng form topmost ẩn để hộp thoại luôn nổi lên trên trình duyệt
+  $form = New-Object System.Windows.Forms.Form
+  $form.TopMost = $true
+
+  $res = $sfd.ShowDialog($form)
+  $form.Dispose()
+
+  if ($res -eq [System.Windows.Forms.DialogResult]::OK -and $sfd.FileName) {
+    return $sfd.FileName
+  }
+
+  return $null
+}
+
+function Open-FolderAndSelect {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$FilePath
+  )
+
+  if (Test-Path $FilePath) {
+    Start-Process explorer.exe -ArgumentList "/select,`"$FilePath`""
+  } else {
+    $parent = [System.IO.Path]::GetDirectoryName($FilePath)
+    if ($parent -and (Test-Path $parent)) {
+      Start-Process explorer.exe -ArgumentList "`"$parent`""
+    }
+  }
+}
+
 Export-ModuleMember -Function @(
   'Read-NativeMessage',
   'Write-NativeMessage',
@@ -286,5 +375,8 @@ Export-ModuleMember -Function @(
   'Join-ProcessArguments',
   'Get-YtDlpArguments',
   'Get-ExtensionIdFromKey',
-  'Get-DownloadsFolder'
+  'Get-DownloadsFolder',
+  'Get-SanitizedFileName',
+  'Show-SaveFileDialog',
+  'Open-FolderAndSelect'
 )

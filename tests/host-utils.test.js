@@ -189,3 +189,20 @@ test('Get-DownloadsFolder: trả về thư mục Downloads tồn tại', () => {
   const res = JSON.parse(ps(cmd));
   assert.equal(res.exists, true);
 });
+
+test('Get-SanitizedFileName: loại bỏ ký tự cấm của Windows và giữ tên an toàn', () => {
+  const cmd = `
+    $t1 = Get-SanitizedFileName -Title 'Nhạc Trịnh: Biển Nhớ? / "2026" <HQ> | 🎵 - YouTube' -Ext 'mp4'
+    [PSCustomObject]@{ t1 = $t1 } | ConvertTo-Json -Compress
+  `;
+  const res = JSON.parse(ps(cmd));
+  assert.ok(!res.t1.includes(':'));
+  assert.ok(!res.t1.includes('?'));
+  assert.ok(!res.t1.includes('/'));
+  assert.ok(!res.t1.includes('"'));
+  assert.ok(!res.t1.includes('<'));
+  assert.ok(!res.t1.includes('>'));
+  assert.ok(!res.t1.includes('|'));
+  assert.ok(res.t1.endsWith('.mp4'));
+});
+

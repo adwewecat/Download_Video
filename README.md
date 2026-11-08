@@ -66,10 +66,12 @@ cd Download_Video
    - Với **video mạng xã hội / stream**:
      - Bấm nút **⬇**: Tải video chuẩn tương thích (H.264 + AAC, tối đa 1080p).
      - Bấm nút **MAX**: Tải video chất lượng cực đại (2K / 4K nếu nền tảng hỗ trợ).
+     - Hộp thoại **Save As** của Windows sẽ hiện lên: điền sẵn tên video, cho phép bạn chọn lưu vào ổ D:, Desktop hoặc thư mục tuỳ ý, hoặc đổi tên rồi bấm **Save** (bấm Cancel để huỷ tải).
 4. Tiến độ tải sẽ hiển thị trực quan (theo %) ngay trên nút nổi và trên badge của icon extension.
 5. Khi tải xong:
-   - File được lưu thẳng vào thư mục **Downloads** của Windows.
-   - Chrome hiển thị thông báo "Tải xong". Nếu là video 2K/4K sử dụng chuẩn AV1/VP9, thông báo sẽ gợi ý kèm nút bấm để tải trình phát **VLC** (miễn phí, mở được mọi định dạng).
+   - Chrome hiển thị thông báo "Tải xong" kèm đường dẫn chi tiết nơi lưu file.
+   - Bấm nút **📂 Mở thư mục** (hoặc bấm thẳng vào thông báo) để File Explorer mở ra và bôi đen sẵn file vừa tải.
+   - Nếu là video 2K/4K sử dụng chuẩn AV1/VP9, thông báo sẽ gợi ý kèm nút bấm để tải trình phát **VLC** (miễn phí, mở được mọi định dạng).
 
 ---
 

@@ -80,6 +80,13 @@ test('Native Host Smoke: ping trả về pong', async () => {
   assert.ok('deno' in pong);
 });
 
+test('Native Host Smoke: open_folder trả về ok', async () => {
+  const res = await sendNativeMessage({ action: 'open_folder', path: '' });
+  assert.equal(res.code, 0);
+  assert.ok(res.responses.length >= 1);
+  assert.equal(res.responses[0].type, 'ok');
+});
+
 test('Native Host Smoke: download video lỗi & dọn sạch cookie tạm', { skip: !fs.existsSync(ytdlpBin) }, async () => {
   const fakeCookie = [
     {
@@ -95,7 +102,8 @@ test('Native Host Smoke: download video lỗi & dọn sạch cookie tạm', { sk
   const res = await sendNativeMessage({
     action: 'download',
     url: 'https://www.youtube.com/watch?v=__non_existent_123456789__',
-    cookies: fakeCookie
+    cookies: fakeCookie,
+    noPrompt: true
   });
 
   assert.ok(res.responses.length >= 1);

@@ -508,7 +508,8 @@
             type: 'DVI_YTDLP',
             url: targetUrl,
             platform,
-            quality
+            quality,
+            title: document.title || ''
           },
           (res) => {
             if (chrome.runtime.lastError) {
@@ -563,6 +564,9 @@
 
     if (msg.type === 'DVI_PROGRESS') {
       setButtonState(el, 'busy', msg.percent);
+    } else if (msg.type === 'DVI_CANCELLED') {
+      setButtonState(el, 'idle');
+      jobs.delete(msg.jobId);
     } else if (msg.type === 'DVI_DONE') {
       setButtonState(el, 'done');
       jobs.delete(msg.jobId);

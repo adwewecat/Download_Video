@@ -60,6 +60,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       url: message.url,
       platform: message.platform,
       quality: message.quality || 'compatible',
+      title: message.title || '',
       tabId: sender.tab ? sender.tab.id : null,
       frameId: sender.frameId || 0
     });
@@ -168,7 +169,7 @@ function sendToTab(tabId, frameId, msg) {
 /**
  * Quản lý vòng đời của một tác vụ tải qua yt-dlp Native Host.
  */
-async function startYtDlpJob({ jobId, url, platform, quality, tabId, frameId }) {
+async function startYtDlpJob({ jobId, url, platform, quality, title, tabId, frameId }) {
   updateBadge(1);
 
   let finished = false;
@@ -220,6 +221,13 @@ async function startYtDlpJob({ jobId, url, platform, quality, tabId, frameId }) 
       return;
     }
 
+    if (msg.type === 'cancelled') {
+      finishJob();
+      sendToTab(tabId, frameId, { type: 'DVI_CANCELLED', jobId });
+      try { port.disconnect(); } catch {}
+      return;
+    }
+
     if (msg.type === 'done') {
       finishJob();
       sendToTab(tabId, frameId, {
@@ -248,13 +256,14 @@ async function startYtDlpJob({ jobId, url, platform, quality, tabId, frameId }) 
     }
   });
 
-  // Thu thập cookie và gửi lệnh download tới Host
+  // Thu thập cookie và gửi lệnh download tới Host (kèm tiêu đề để mở Save As dialog)
   try {
     const cookies = await getCookiesForPlatform(platform);
     port.postMessage({
       action: 'download',
       url,
       quality,
+      title,
       cookies
     });
   } catch (e) {
@@ -266,8 +275,27 @@ async function startYtDlpJob({ jobId, url, platform, quality, tabId, frameId }) 
   }
 }
 
+// Lưu trữ ánh xạ notifId -> filePath để mở thư mục khi bấm vào thông báo
+const notificationPaths = new Map();
+
 /**
- * Hiển thị thông báo khi tải xong (kèm gợi ý trình phát VLC nếu là video 2K/4K).
+ * Gửi lệnh mở File Explorer và bôi đen file vừa tải.
+ */
+function openFolderInExplorer(filePath) {
+  if (!filePath) return;
+  try {
+    chrome.runtime.sendNativeMessage(
+      NATIVE_HOST_NAME,
+      { action: 'open_folder', path: filePath },
+      () => {
+        if (chrome.runtime.lastError) {}
+      }
+    );
+  } catch {}
+}
+
+/**
+ * Hiển thị thông báo khi tải xong (kèm đường dẫn lưu, nút mở thư mục và gợi ý VLC nếu là video 2K/4K).
  */
 function notifyDone(filePath, vcodec, height) {
   if (!chrome.notifications) return;
@@ -277,8 +305,10 @@ function notifyDone(filePath, vcodec, height) {
     (typeof height === 'number' && height > 1080) ||
     (typeof vcodec === 'string' && /av01|vp09|vp9/i.test(vcodec));
 
-  let message = fileName;
-  const buttons = [];
+  let message = `${fileName}\nĐã lưu: ${filePath}`;
+  const buttons = [
+    { title: '📂 Mở thư mục' }
+  ];
 
   if (isHighResOrNewCodec) {
     message += '\nVideo 2K/4K (AV1/VP9) — nếu không mở được, hãy dùng VLC';
@@ -290,14 +320,13 @@ function notifyDone(filePath, vcodec, height) {
     iconUrl: 'icons/icon128.png',
     title: 'Tải xong',
     message,
+    buttons,
     priority: 1
   };
 
-  if (buttons.length > 0) {
-    notifOptions.buttons = buttons;
-  }
-
   const notifId = `dvi-done-${Date.now()}`;
+  notificationPaths.set(notifId, filePath);
+
   chrome.notifications.create(notifId, notifOptions);
 }
 
@@ -316,11 +345,28 @@ function notifyError(errorMessage) {
   });
 }
 
-// Bắt sự kiện click vào nút hành động trên thông báo (ví dụ nút "Tải VLC")
+// Bắt sự kiện click vào nút hành động trên thông báo
 if (chrome.notifications && chrome.notifications.onButtonClicked) {
   chrome.notifications.onButtonClicked.addListener((notifId, buttonIndex) => {
-    if (buttonIndex === 0 && notifId.startsWith('dvi-done-')) {
-      chrome.tabs.create({ url: 'https://www.videolan.org/vlc/' });
+    if (notifId.startsWith('dvi-done-')) {
+      const filePath = notificationPaths.get(notifId);
+      if (buttonIndex === 0) {
+        // Nút "Mở thư mục"
+        openFolderInExplorer(filePath);
+      } else if (buttonIndex === 1) {
+        // Nút "Tải VLC"
+        chrome.tabs.create({ url: 'https://www.videolan.org/vlc/' });
+      }
+    }
+  });
+}
+
+// Bắt sự kiện click vào chính khung thông báo
+if (chrome.notifications && chrome.notifications.onClicked) {
+  chrome.notifications.onClicked.addListener((notifId) => {
+    if (notifId.startsWith('dvi-done-')) {
+      const filePath = notificationPaths.get(notifId);
+      openFolderInExplorer(filePath);
     }
   });
 }

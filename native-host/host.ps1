@@ -56,9 +56,20 @@ try {
     exit 0
   }
 
+  if ($action -eq 'open_folder') {
+    $targetPath = [string]$message.path
+    if ($targetPath) {
+      Open-FolderAndSelect -FilePath $targetPath
+    }
+    Write-NativeMessage -Stream $stdout -Object @{ type = 'ok' }
+    exit 0
+  }
+
   if ($action -eq 'download') {
     $url = [string]$message.url
     $quality = if ($message.quality) { [string]$message.quality } else { 'compatible' }
+    $title = if ($message.title) { [string]$message.title } else { "" }
+    $noPrompt = if ($message.noPrompt) { [bool]$message.noPrompt } else { $false }
 
     $binDir = Join-Path $ScriptDir "bin"
     $ytdlpExe = Join-Path $binDir "yt-dlp.exe"
@@ -91,6 +102,25 @@ try {
     }
 
     $outDir = Get-DownloadsFolder
+    $outTemplate = '%(title).150B [%(id)s].%(ext)s'
+
+    # Hiển thị hộp thoại Save As để người dùng chọn thư mục và đặt tên file nếu muốn
+    if (-not $noPrompt) {
+      $defaultFileName = if ($title) { Get-SanitizedFileName -Title $title -Ext 'mp4' } else { "video.mp4" }
+      $chosenFile = Show-SaveFileDialog -InitialDir $outDir -DefaultFileName $defaultFileName -Title "Chọn nơi lưu video..."
+      if (-not $chosenFile) {
+        # Người dùng bấm Cancel trên hộp thoại Save As
+        Write-NativeMessage -Stream $stdout -Object @{
+          type    = 'cancelled'
+          message = 'Người dùng đã huỷ tải'
+        }
+        exit 0
+      }
+
+      $outDir = [System.IO.Path]::GetDirectoryName($chosenFile)
+      $chosenBase = [System.IO.Path]::GetFileNameWithoutExtension($chosenFile)
+      $outTemplate = "$chosenBase.%(ext)s"
+    }
 
     # Chuẩn bị file cookie tạm nếu có (UTF-8 không BOM)
     $cookieFile = $null
@@ -101,7 +131,7 @@ try {
     }
 
     try {
-      $argsList = Get-YtDlpArguments -Url $url -OutDir $outDir -CookieFile $cookieFile -Quality $quality
+      $argsList = Get-YtDlpArguments -Url $url -OutDir $outDir -CookieFile $cookieFile -Quality $quality -OutTemplate $outTemplate
       $argsString = Join-ProcessArguments -Arguments $argsList
 
       $psi = New-Object System.Diagnostics.ProcessStartInfo
