@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Test Page - Download Video & Image Extension</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 960px;
+      margin: 30px auto;
+      padding: 0 20px;
+      line-height: 1.6;
+      background: #f7f9fa;
+      color: #333;
+    }
+    h1 { color: #1e88e5; }
+    .card {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .media-box {
+      margin-top: 10px;
+      display: inline-block;
+    }
+    .bg-box {
+      width: 320px;
+      height: 200px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+    .overlay-container {
+      position: relative;
+      display: inline-block;
+    }
+    .overlay-transparent {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: transparent;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Trang Kiểm Thử Thủ Công: Download Video & Image</h1>
+  <p>Dùng để kiểm tra nút tải nổi trên các loại media khác nhau.</p>
+
+  <!-- 1. Ảnh thông thường -->
+  <div class="card">
+    <h3>1. Thẻ &lt;img&gt; thông thường (HTTP/HTTPS)</h3>
+    <div class="media-box">
+      <img src="https://picsum.photos/id/10/400/250" alt="Sample 1" width="400" height="250" style="border-radius: 6px;">
+    </div>
+  </div>
+
+  <!-- 2. Ảnh srcset (1x vs 2x) -->
+  <div class="card">
+    <h3>2. Thẻ &lt;img srcset&gt; (chọn bản nét nhất)</h3>
+    <div class="media-box">
+      <img
+        src="https://picsum.photos/id/20/300/200"
+        srcset="https://picsum.photos/id/20/300/200 1x, https://picsum.photos/id/20/600/400 2x"
+        alt="Sample Srcset"
+        width="300" height="200"
+        style="border-radius: 6px;"
+      >
+    </div>
+  </div>
+
+  <!-- 3. CSS background-image -->
+  <div class="card">
+    <h3>3. Phần tử CSS background-image</h3>
+    <div class="bg-box" style="background-image: url('https://picsum.photos/id/30/500/300');"></div>
+  </div>
+
+  <!-- 4. Data URL (Base64) -->
+  <div class="card">
+    <h3>4. Ảnh Data URL (base64 PNG)</h3>
+    <div class="media-box">
+      <!-- 100x100 Red dot PNG -->
+      <img
+        src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAzSURBVHhe7cExAQAAAMKg9U9tCy8gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwZlDAAATvU7XkAAAAASUVORK5CYII="
+        alt="Data URL Image"
+        width="100" height="100"
+        style="border: 1px solid #ddd;"
+      >
+    </div>
+  </div>
+
+  <!-- 5. Blob URL (tạo từ Canvas) -->
+  <div class="card">
+    <h3>5. Ảnh Blob URL (tạo qua JavaScript)</h3>
+    <div class="media-box">
+      <img id="blob-test-img" width="200" height="120" alt="Blob Image" style="border-radius: 6px; border: 1px solid #eee;">
+    </div>
+  </div>
+
+  <!-- 6. Ảnh nhỏ dưới 60x60 (KHÔNG ĐƯỢC hiện nút) -->
+  <div class="card">
+    <h3>6. Ảnh nhỏ dưới 60x60 (Phải BỎ QUA nút tải)</h3>
+    <div class="media-box">
+      <img src="https://picsum.photos/id/40/40/40" width="40" height="40" alt="Icon 40x40" style="border-radius: 50%;">
+      <span style="vertical-align: middle; margin-left: 10px; color: #666;">(Rê chuột vào đây không được hiện nút tải)</span>
+    </div>
+  </div>
+
+  <!-- 7. Video MP4 trực tiếp -->
+  <div class="card">
+    <h3>7. Video MP4 trực tiếp</h3>
+    <div class="media-box">
+      <video
+        controls
+        width="480"
+        src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+        style="border-radius: 6px;"
+      ></video>
+    </div>
+  </div>
+
+  <!-- 8. Ảnh bị lớp phủ trong suốt che (như Instagram / X) -->
+  <div class="card">
+    <h3>8. Ảnh bị lớp phủ trong suốt che (Hit-test elementsFromPoint)</h3>
+    <div class="overlay-container">
+      <img src="https://picsum.photos/id/50/400/260" width="400" height="260" alt="Under overlay" style="border-radius: 6px;">
+      <div class="overlay-transparent" title="Lớp phủ trong suốt"></div>
+    </div>
+  </div>
+
+  <!-- 9. Ảnh nằm trong thẻ &lt;a href&gt; (Bấm nút không được nhảy trang) -->
+  <div class="card">
+    <h3>9. Ảnh nằm trong thẻ &lt;a href&gt;</h3>
+    <div class="media-box">
+      <a href="https://example.com/should-not-navigate" target="_blank" id="test-anchor">
+        <img src="https://picsum.photos/id/60/350/220" width="350" height="220" alt="Link Image" style="border-radius: 6px;">
+      </a>
+    </div>
+    <div style="font-size: 13px; color: #888; margin-top: 5px;">(Bấm nút Download không được mở trang example.com)</div>
+  </div>
+
+  <script>
+    // Sinh blob image từ canvas
+    (function () {
+      const canvas = document.createElement('canvas');
+      canvas.width = 200;
+      canvas.height = 120;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#4CAF50';
+      ctx.fillRect(0, 0, 200, 120);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.fillText('Blob Image', 50, 65);
+
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        document.getElementById('blob-test-img').src = url;
+      }, 'image/png');
+    })();
+  </script>
+</body>
+</html>
