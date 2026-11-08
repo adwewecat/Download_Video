@@ -98,6 +98,7 @@ Bao gồm:
 Download_Video_Image/
 ├── GEMINI.md                  # Sổ tay dự án cho AI / DEV (bắt buộc đọc)
 ├── README.md                  # Tài liệu hướng dẫn sử dụng và cài đặt
+├── HUONG_DAN_CAI_DAT.txt      # Hướng dẫn cài đặt nhanh dạng văn bản thuần
 ├── .gitignore                 # Loại trừ file nhị phân bin/ và manifest local
 ├── extension/                 # Thư mục Chrome Extension (Load unpacked)
 │   ├── manifest.json          # Manifest V3 (ID extension cố định)

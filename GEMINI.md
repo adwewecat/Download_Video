@@ -49,6 +49,15 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Tạo file HUONG_DAN_CAI_DAT.txt lưu trữ hướng dẫn cài đặt chi tiết
+- **Định làm:**
+  1. Tạo file văn bản thuần `HUONG_DAN_CAI_DAT.txt` tại thư mục gốc dự án, trình bày từng bước cài đặt 1-click rõ ràng, dễ nhớ, dễ thực hiện kể cả khi cài lại Windows hoặc lâu ngày không dùng.
+  2. Cập nhật `README.md` và `GEMINI.md`.
+  3. Commit và `git push origin main` ngay lập tức.
+- **Vì sao:** Người dùng yêu cầu tạo file `.txt` để lưu lại hướng dẫn dự án, tránh bị quên sau thời gian dài hoặc khi chuyển máy tính mới.
+- **Kết quả:** Đã tạo `HUONG_DAN_CAI_DAT.txt` đầy đủ 3 bước cài đặt, hướng dẫn dùng các nút ⬇, MAX, MP3, xử lý sự cố thường gặp. Đã cập nhật tài liệu và sẵn sàng đẩy lên GitHub main.
+
+
 ### 2026-11-08 — Sửa lỗi: Trình hỗ trợ dừng đột ngột (PowerShell BOM / ANSI) & Hỗ trợ Instagram /reels/ & Nút MP3
 - **Định làm:**
   1. Khắc phục triệt để lỗi "Trình hỗ trợ dừng đột ngột" khi người dùng bấm tải video:
