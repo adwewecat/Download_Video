@@ -3,7 +3,7 @@
 Chrome Extension giúp bạn tải **mọi hình ảnh và video** trên bất kỳ trang web nào bằng một cú bấm chuột:
 - **Hình ảnh:** Tự động phát hiện thẻ `<img>`, chọn ảnh có độ phân giải cao nhất từ `srcset`, trích xuất ảnh nền CSS (`background-image`), ảnh `data:` base64 và ảnh `blob:`.
 - **Video file thường:** Tải trực tiếp qua trình duyệt với định dạng `.mp4`, `.webm`.
-- **Video nền tảng / video stream:** Tự động nhận diện và hỗ trợ đầy đủ các nền tảng lớn như **YouTube, Facebook, TikTok, Instagram, X (Twitter), Threads**, cũng như các trang stream HLS/DASH.
+- **Video nền tảng / video stream:** Tự động nhận diện và hỗ trợ đầy đủ các nền tảng lớn như **YouTube, Facebook, TikTok, Instagram, X (Twitter), Threads**, cũng như các trang stream HLS/DASH và trình phát nhúng (JWPlayer, Video.js, VLStream,...).
   - Nút **⬇**: Tải bản tương thích cao (H.264 + AAC trong `.mp4`), dễ mở trên mọi thiết bị và trình phát Windows.
   - Nút **MAX**: Tải bản nét nhất có thể (2K / 4K AV1/VP9 nếu nguồn có hỗ trợ).
 

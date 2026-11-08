@@ -71,6 +71,11 @@ try {
     $title = if ($message.title) { [string]$message.title } else { "" }
     $noPrompt = if ($message.noPrompt) { [bool]$message.noPrompt } else { $false }
 
+    # Tu dong phan giai cac link embed sang direct stream URL (HLS / m3u8 / vl) neu co
+    if ($url) {
+      $url = Resolve-StreamUrl -Url $url
+    }
+
     $binDir = Join-Path $ScriptDir "bin"
     $ytdlpExe = Join-Path $binDir "yt-dlp.exe"
 

@@ -49,6 +49,20 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Sửa lỗi: Tải video stream từ vlxx.app / vlstream.net (đuôi lạ .vl & HLS blob embed)
+- **Định làm:**
+  1. Hỗ trợ trích xuất luồng video stream HLS từ các trình phát nhúng (embed players như `play.vlstream.net`, JWPlayer) khi thẻ video dùng `blob:` URL:
+     - Trong `extension/content/content.js`: thêm hàm `findDirectStreamInDocument` quét các thẻ `<script>` trong trang để tìm link manifest/file stream thực tế (`.m3u8`, `.mpd`, `.vl`, `file: "..."`).
+     - Trong `extension/content/media-utils.js`: định tuyến các URL stream (`.m3u8`, `.mpd`, `.vl`) sang `ytdlp` thay vì tải trực tiếp bằng trình duyệt.
+  2. Trong `native-host/host.ps1` và `HostUtils.psm1`:
+     - Bổ sung cơ chế tự động phân giải embed URL sang direct stream URL khi gặp các trang nhúng hoặc khi `yt-dlp` báo lỗi `The extracted extension ('vl') is unusual and will be skipped for safety reasons`.
+     - Thêm tham số `--referer` tương ứng khi gọi `yt-dlp` để tránh bị chặn 403.
+  3. Viết unit test cho các luồng phân giải mới và chạy toàn bộ test suite.
+  4. Cập nhật tài liệu `GEMINI.md`, `README.md`, commit và `git push origin main`.
+- **Vì sao:** Người dùng thử tải video trên `vlxx.app`. Trang này nhúng player `play.vlstream.net`, trong đó luồng HLS m3u8 được đặt tên file đuôi `.vl`. Khi gửi embed URL sang, `yt-dlp` hiểu nhầm đuôi file là `.vl` thay vì HLS stream và báo lỗi an toàn. Khi trích xuất trực tiếp link `.vl`, `yt-dlp` nhận diện chuẩn xác định dạng HLS m3u8 và tải mượt mà.
+- **Kết quả:** Đã hoàn thành. Cả 2 tầng (content script và native host) đều tự động nhận diện và phân giải link manifest `.vl` / `.m3u8` trực tiếp. Toàn bộ 31/31 unit & smoke tests PASS. Đã sẵn sàng commit và push.
+
+
 ### 2026-11-08 — Tạo file HUONG_DAN_CAI_DAT.txt lưu trữ hướng dẫn cài đặt chi tiết
 - **Định làm:**
   1. Tạo file văn bản thuần `HUONG_DAN_CAI_DAT.txt` tại thư mục gốc dự án, trình bày từng bước cài đặt 1-click rõ ràng, dễ nhớ, dễ thực hiện kể cả khi cài lại Windows hoặc lâu ngày không dùng.

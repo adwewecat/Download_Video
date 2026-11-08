@@ -318,6 +318,25 @@
   }
 
   /**
+   * Quét các thẻ <script> và nội dung trang để tìm link luồng stream trực tiếp (HLS/m3u8/vl).
+   */
+  function findDirectStreamInDocument() {
+    try {
+      const scripts = document.scripts || [];
+      for (let i = 0; i < scripts.length; i++) {
+        const text = scripts[i].textContent || '';
+        if (!text) continue;
+        const streamUrl = U.extractStreamUrlFromHtml(text);
+        if (streamUrl) return streamUrl;
+      }
+      const bodyHtml = document.body ? document.body.innerHTML : '';
+      return U.extractStreamUrlFromHtml(bodyHtml);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
    * Tìm phần tử media hợp lệ dưới toạ độ (x, y) bằng elementsFromPoint.
    */
   function findMediaAt(x, y) {
@@ -371,6 +390,13 @@
         const source = foundVideo.querySelector('source[src]');
         if (source) url = source.src;
       }
+      // Nếu video phát bằng blob URL (thường là HLS stream qua jwplayer/hls.js), tìm link manifest thực tế
+      if (!url || url.startsWith('blob:')) {
+        const directStream = findDirectStreamInDocument();
+        if (directStream) {
+          url = directStream;
+        }
+      }
     } else if (foundImg) {
       url = U.pickLargestFromSrcset(foundImg.srcset, document.baseURI) || foundImg.currentSrc || foundImg.src || '';
     } else if (foundBg) {
@@ -379,7 +405,7 @@
 
     const urlKind = U.getUrlKind(url);
     const platform = U.detectPlatform(window.location.hostname);
-    const route = U.chooseRoute(mediaType, urlKind, platform);
+    const route = U.chooseRoute(mediaType, urlKind, platform, url);
 
     return {
       element: targetEl,
@@ -514,9 +540,22 @@
       }
 
       if (route === 'ytdlp') {
-        // Định tuyến sang yt-dlp qua Service Worker (Task 8 kết nối hoàn chỉnh)
-        const levels = collectLevels(element);
-        const targetUrl = platform ? U.choosePermalink(platform, levels, window.location.href) : window.location.href;
+        // Định tuyến sang yt-dlp qua Service Worker
+        let targetUrl;
+        if (url && typeof url === 'string' && /^https?:\/\//i.test(url) && /\.(m3u8|mpd|vl)(\?|$)/i.test(url)) {
+          // Luồng stream HLS / DASH trực tiếp
+          targetUrl = url;
+        } else {
+          const levels = collectLevels(element);
+          targetUrl = platform ? U.choosePermalink(platform, levels, window.location.href) : window.location.href;
+        }
+
+        let pageTitle = document.title || '';
+        try {
+          if (window.top && window.top !== window && window.top.document && window.top.document.title) {
+            pageTitle = window.top.document.title;
+          }
+        } catch {}
 
         chrome.runtime.sendMessage(
           {
@@ -524,7 +563,7 @@
             url: targetUrl,
             platform,
             quality,
-            title: document.title || ''
+            title: pageTitle
           },
           (res) => {
             if (chrome.runtime.lastError) {

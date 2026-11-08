@@ -353,14 +353,29 @@
   }
 
   /**
+   * Trích xuất link luồng video (m3u8, mpd, vl, file / source) từ mã nguồn HTML hoặc nội dung script.
+   *
+   * @param {string} html - Nội dung HTML hoặc text trong thẻ script
+   * @returns {string|null} URL luồng stream hoặc null nếu không tìm thấy
+   */
+  function extractStreamUrlFromHtml(html) {
+    if (!html || typeof html !== 'string') return null;
+    const m = /["'](?:file|source|src)["']\s*:\s*["'](https?:\/\/[^"']+\.(?:vl|m3u8|mpd|mp4)[^"']*)["']/i.exec(html)
+      || /["'](?:file|source|src)["']\s*:\s*["'](https?:\/\/[^"']+)["']/i.exec(html)
+      || /(https?:\/\/[^\s"'<>]+\.(?:m3u8|mpd|vl)(?:\?[^\s"'<>]*)?)/i.exec(html);
+    return m && m[1] ? m[1] : null;
+  }
+
+  /**
    * Quyết định đường tải cho một phần tử media.
    *
    * @param {'image'|'video'} mediaType - Loại media
    * @param {'http'|'data'|'blob'|'none'} urlKind - Loại URL
    * @param {string|null} platform - Tên nền tảng (nếu có)
+   * @param {string} [url=''] - URL media (dùng để nhận diện stream .m3u8/.mpd/.vl)
    * @returns {'direct'|'blob-image'|'ytdlp'|'none'}
    */
-  function chooseRoute(mediaType, urlKind, platform) {
+  function chooseRoute(mediaType, urlKind, platform, url = '') {
     if (mediaType === 'image') {
       if (urlKind === 'http' || urlKind === 'data') {
         return 'direct';
@@ -373,6 +388,10 @@
 
     if (mediaType === 'video') {
       if (platform !== null) {
+        return 'ytdlp';
+      }
+      // Các luồng stream HLS / DASH (.m3u8, .mpd, .vl) cần yt-dlp và ffmpeg để gộp
+      if (url && typeof url === 'string' && /\.(m3u8|mpd|vl)(\?|$)/i.test(url)) {
         return 'ytdlp';
       }
       if (urlKind === 'http' || urlKind === 'data') {
@@ -396,6 +415,7 @@
     normalizePermalink,
     isPermalink,
     choosePermalink,
+    extractStreamUrlFromHtml,
     chooseRoute
   });
 

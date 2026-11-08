@@ -255,8 +255,51 @@ function Get-YtDlpArguments {
     $argsList += @('--cookies', $CookieFile)
   }
 
+  if ($Url -match 'gooqlevideo\.com' -or $Url -match '\.vl(\?|$)') {
+    $argsList += @('--referer', 'https://play.vlstream.net/')
+  }
+
   $argsList += @('--', $Url)
   return ,$argsList
+}
+
+function Resolve-StreamUrl {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$Url
+  )
+
+  # Neu da la link stream truc tiep thi giu nguyen
+  if ($Url -match '\.(m3u8|mpd|vl)(\?|$)') {
+    return $Url
+  }
+
+  # Xu ly cac link nhung embed nhu play.vlstream.net hoac cac trang embed
+  if ($Url -match 'play\.vlstream\.net/embed/' -or $Url -match '/embed/') {
+    try {
+      $wr = [System.Net.WebRequest]::Create($Url)
+      $wr.UserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      $wr.Timeout = 6000
+      $resp = $wr.GetResponse()
+      $stream = $resp.GetResponseStream()
+      $reader = New-Object System.IO.StreamReader($stream)
+      $html = $reader.ReadToEnd()
+      $reader.Close()
+      $resp.Close()
+
+      if ($html -match '["''](?:file|source|src)["'']\s*:\s*["''](https?://[^"'']+\.(?:vl|m3u8|mpd|mp4)[^"'']*)["'']') {
+        return $matches[1]
+      }
+      if ($html -match '["''](?:file|source|src)["'']\s*:\s*["''](https?://[^"'']+)["'']') {
+        return $matches[1]
+      }
+    } catch {
+      # Fallback ve URL goc neu gap loi ket noi
+    }
+  }
+
+  return $Url
 }
 
 function Get-ExtensionIdFromKey {
@@ -406,5 +449,6 @@ Export-ModuleMember -Function @(
   'Get-DownloadsFolder',
   'Get-SanitizedFileName',
   'Show-SaveFileDialog',
-  'Open-FolderAndSelect'
+  'Open-FolderAndSelect',
+  'Resolve-StreamUrl'
 )

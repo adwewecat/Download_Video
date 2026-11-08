@@ -218,3 +218,16 @@ test('Get-SanitizedFileName: loại bỏ ký tự cấm của Windows và giữ 
   assert.ok(res.t1.endsWith('.mp4'));
 });
 
+test('Resolve-StreamUrl: giữ nguyên direct stream và trích xuất từ embed nếu cần', () => {
+  const cmd = `
+    $u1 = Resolve-StreamUrl -Url 'https://cdn.com/video.m3u8'
+    $u2 = Resolve-StreamUrl -Url 'https://cdn.com/manifest.vl'
+    $u3 = Resolve-StreamUrl -Url 'https://normal.com/watch?v=1'
+    [PSCustomObject]@{ u1 = $u1; u2 = $u2; u3 = $u3 } | ConvertTo-Json -Compress
+  `;
+  const res = JSON.parse(ps(cmd));
+  assert.equal(res.u1, 'https://cdn.com/video.m3u8');
+  assert.equal(res.u2, 'https://cdn.com/manifest.vl');
+  assert.equal(res.u3, 'https://normal.com/watch?v=1');
+});
+

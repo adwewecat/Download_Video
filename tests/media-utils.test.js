@@ -173,9 +173,28 @@ test('chooseRoute: quyết định đường tải direct / blob-image / ytdlp /
   assert.equal(U.chooseRoute('image', 'none', null), 'none');
   assert.equal(U.chooseRoute('video', 'http', 'tiktok'), 'ytdlp');
   assert.equal(U.chooseRoute('video', 'http', null), 'direct');
+  assert.equal(U.chooseRoute('video', 'http', null, 'https://cdn.com/video.m3u8'), 'ytdlp');
+  assert.equal(U.chooseRoute('video', 'http', null, 'https://rr3.gooqlevideo.com/manifest-s1/02067.vl'), 'ytdlp');
   assert.equal(U.chooseRoute('video', 'data', null), 'direct');
   assert.equal(U.chooseRoute('video', 'blob', null), 'ytdlp');
   assert.equal(U.chooseRoute('video', 'none', null), 'ytdlp');
+});
+
+test('extractStreamUrlFromHtml: trích xuất đúng link m3u8 / vl từ nội dung script', () => {
+  const sampleVl = '<script>window.__SRC = [{"message":"OK","title":"02067","label":"Auto","type":"hls","file":"https://rr3---sn-8pxuuxa-i5ozr.gooqlevideo.com/manifest-s1/02067.vl"}];</script>';
+  assert.equal(
+    U.extractStreamUrlFromHtml(sampleVl),
+    'https://rr3---sn-8pxuuxa-i5ozr.gooqlevideo.com/manifest-s1/02067.vl'
+  );
+
+  const sampleM3u8 = 'jwplayer("player").setup({ file: "https://streaming.example.com/live/playlist.m3u8?token=xyz" });';
+  assert.equal(
+    U.extractStreamUrlFromHtml(sampleM3u8),
+    'https://streaming.example.com/live/playlist.m3u8?token=xyz'
+  );
+
+  assert.equal(U.extractStreamUrlFromHtml(''), null);
+  assert.equal(U.extractStreamUrlFromHtml(null), null);
 });
 
 
