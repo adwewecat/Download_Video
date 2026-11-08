@@ -28,21 +28,31 @@
 
 ## 3. Trạng thái hiện tại
 
-- **Giai đoạn:** Phân tích & thiết kế (chưa có code extension).
-- Đã có: `README.md`, `GEMINI.md`.
+- **Giai đoạn:** Thiết kế (chưa có code extension). Đã chốt hướng C.
+- Đã có: `README.md`, `GEMINI.md`, bản thiết kế `docs/superpowers/specs/2026-11-08-download-media-extension-design.md`,
+  `tests/media-utils.test.js` (test viết trước, chưa có code để chạy qua).
 
 ---
 
 ## 4. Việc tiếp theo
 
-- [ ] Chốt phạm vi với chủ dự án: loại video cần hỗ trợ (file trực tiếp `.mp4/.webm` hay cả web stream như YouTube/Facebook/TikTok).
-- [ ] Viết tài liệu thiết kế tại `docs/superpowers/specs/`.
-- [ ] Lập kế hoạch triển khai, rồi code extension (Manifest V3).
+- [ ] Chủ dự án chọn chất lượng video mặc định (mục 5.4.1 trong bản thiết kế) rồi duyệt bản thiết kế.
+- [ ] Lập kế hoạch triển khai tại `docs/superpowers/plans/`.
+- [ ] Code extension (Manifest V3) + native host (`native-host/`) theo kế hoạch.
 
 ---
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Chốt phạm vi: hướng C (extension + yt-dlp)
+- **Chủ dự án chốt:** tải được ở mọi trang, **kể cả** YouTube, Facebook, TikTok, Instagram, X, Threads.
+- **Hướng C:** ảnh + video file thường do extension tự tải; video nền tảng / stream gửi sang chương trình hỗ trợ trên máy
+  (native host PowerShell + yt-dlp + ffmpeg + Deno), cài 1 lần bằng `native-host\setup.bat`.
+- **Thiết kế:** `docs/superpowers/specs/2026-11-08-download-media-extension-design.md` (đang chờ chủ dự án duyệt).
+- *(Thay thế ghi chú "v1 chỉ ảnh + video file trực tiếp" viết trước đó — phạm vi đó đã bị bỏ.)*
+- `tests/media-utils.test.js` đã viết trước (chưa commit), giữ lại làm hợp đồng cho `media-utils.js`.
+
 ### 2026-11-08
 - **Định làm:** Khởi tạo tài liệu dự án theo yêu cầu chủ dự án.
 - **Đã làm:** Clone repo, tạo `GEMINI.md` (quy tắc + trạng thái + nhật ký), bổ sung `README.md`. Bắt đầu phân tích yêu cầu extension.
+
