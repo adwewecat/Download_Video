@@ -95,3 +95,76 @@ test('filenameForDataUrl: MIME lạ/thiếu dùng đuôi mặc định theo lo�
   assert.equal(U.filenameForDataUrl('data:,hello', 'video', now), 'video-20260102-030405.mp4');
 });
 
+test('detectPlatform: nhận diện nền tảng từ hostname', () => {
+  assert.equal(U.detectPlatform('www.youtube.com'), 'youtube');
+  assert.equal(U.detectPlatform('m.youtube.com'), 'youtube');
+  assert.equal(U.detectPlatform('youtu.be'), 'youtube');
+  assert.equal(U.detectPlatform('youtube-nocookie.com'), 'youtube');
+  assert.equal(U.detectPlatform('twitter.com'), 'x');
+  assert.equal(U.detectPlatform('x.com'), 'x');
+  assert.equal(U.detectPlatform('www.threads.net'), 'threads');
+  assert.equal(U.detectPlatform('threads.com'), 'threads');
+  assert.equal(U.detectPlatform('www.instagram.com'), 'instagram');
+  assert.equal(U.detectPlatform('www.tiktok.com'), 'tiktok');
+  assert.equal(U.detectPlatform('web.facebook.com'), 'facebook');
+  assert.equal(U.detectPlatform('fb.watch'), 'facebook');
+  assert.equal(U.detectPlatform('notyoutube.com'), null);
+  assert.equal(U.detectPlatform('example.com'), null);
+  assert.equal(U.detectPlatform(''), null);
+  assert.equal(U.detectPlatform(null), null);
+});
+
+test('isPermalink: nhận diện URL bài viết / video trên từng nền tảng', () => {
+  assert.ok(U.isPermalink('youtube', 'https://www.youtube.com/watch?v=abc123'));
+  assert.ok(U.isPermalink('youtube', 'https://www.youtube.com/shorts/abc123'));
+  assert.ok(!U.isPermalink('youtube', 'https://www.youtube.com/@channel'));
+  assert.ok(U.isPermalink('x', 'https://x.com/user/status/123456'));
+  assert.ok(U.isPermalink('x', 'https://twitter.com/user/status/123456/photo/1'));
+  assert.ok(!U.isPermalink('x', 'https://x.com/user'));
+  assert.ok(U.isPermalink('instagram', 'https://www.instagram.com/reel/Cx1/'));
+  assert.ok(U.isPermalink('instagram', 'https://www.instagram.com/p/Cx1/'));
+  assert.ok(!U.isPermalink('instagram', 'https://www.instagram.com/explore/'));
+  assert.ok(U.isPermalink('threads', 'https://www.threads.net/@u/post/Cx1'));
+  assert.ok(U.isPermalink('threads', 'https://www.threads.com/@u/post/Cx1'));
+  assert.ok(U.isPermalink('tiktok', 'https://www.tiktok.com/@u/video/7300000000000000000'));
+  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/watch/?v=123'));
+  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/reel/123'));
+  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/somepage/videos/123/'));
+  assert.ok(U.isPermalink('facebook', 'https://fb.watch/abc/'));
+});
+
+test('normalizePermalink: chuẩn hoá permalink về dạng canonical', () => {
+  assert.equal(
+    U.normalizePermalink('x', 'https://x.com/user/status/123456/photo/1'),
+    'https://x.com/user/status/123456'
+  );
+  assert.equal(
+    U.normalizePermalink('instagram', 'https://www.instagram.com/reel/Cx1/?utm_source=ig_web'),
+    'https://www.instagram.com/reel/Cx1/'
+  );
+  assert.equal(U.normalizePermalink('x', 'https://x.com/home'), null);
+});
+
+test('choosePermalink: chọn permalink duy nhất từ các tầng tổ tiên', () => {
+  const page = 'https://x.com/home';
+  const a = 'https://x.com/u/status/1';
+  const b = 'https://x.com/v/status/2';
+  assert.equal(U.choosePermalink('x', [['https://x.com/u'], [a, a + '/photo/1', a]], page), a);
+  assert.equal(U.choosePermalink('x', [[], [a, b]], page), page);
+  assert.equal(U.choosePermalink('x', [[a, b], [a]], page), page);
+  assert.equal(U.choosePermalink('x', [], page), page);
+});
+
+test('chooseRoute: quyết định đường tải direct / blob-image / ytdlp / none', () => {
+  assert.equal(U.chooseRoute('image', 'http', 'instagram'), 'direct');
+  assert.equal(U.chooseRoute('image', 'data', null), 'direct');
+  assert.equal(U.chooseRoute('image', 'blob', null), 'blob-image');
+  assert.equal(U.chooseRoute('image', 'none', null), 'none');
+  assert.equal(U.chooseRoute('video', 'http', 'tiktok'), 'ytdlp');
+  assert.equal(U.chooseRoute('video', 'http', null), 'direct');
+  assert.equal(U.chooseRoute('video', 'data', null), 'direct');
+  assert.equal(U.chooseRoute('video', 'blob', null), 'ytdlp');
+  assert.equal(U.chooseRoute('video', 'none', null), 'ytdlp');
+});
+
+

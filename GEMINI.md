@@ -44,6 +44,11 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Task 2: Thêm nhận diện nền tảng, permalink và định tuyến (route)
+- **Định làm:** Mở rộng `media-utils.js` và `tests/media-utils.test.js` với các hàm `detectPlatform`, `normalizePermalink`, `isPermalink`, `choosePermalink`, `chooseRoute`.
+- **Vì sao:** Xác định chính xác video nào thuộc YouTube/FB/TikTok/Insta/X/Threads và lấy đúng link gốc của video thay vì link feed.
+- **Kết quả:** Đã hoàn thành. 14/14 unit test PASS. Chuẩn hoá permalink theo đúng pattern từng MXH.
+
 ### 2026-11-08 — Task 1: Cài đặt media-utils.js (xử lý srcset, CSS url, URL kind, tên file data URL)
 - **Định làm:** Tạo `.gitignore`, tạo `extension/content/media-utils.js` đáp ứng hợp đồng test `tests/media-utils.test.js`.
 - **Vì sao:** Đặt nền móng các hàm thuần xử lý ảnh và trích xuất URL cho content script theo TDD.
