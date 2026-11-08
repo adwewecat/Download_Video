@@ -44,6 +44,11 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Task 6: Cài đặt Native Messaging Host (host.bat + host.ps1) và smoke test
+- **Định làm:** Tạo `native-host/host.bat`, `native-host/host.ps1` và `tests/native-host.smoke.test.js`.
+- **Vì sao:** Xử lý các lệnh từ Chrome extension (`ping`, `download`), chạy yt-dlp với mã hoá UTF-8, dọn dẹp file cookie tạm trong `finally`, báo tiến độ thời gian thực về extension.
+- **Kết quả:** Đã hoàn thành. Host PowerShell nhận và phản hồi gói tin nhị phân qua stdin/stdout chuẩn xác. Smoke test `ping` PASS (383ms), trả về cấu trúc pong đầy đủ.
+
 ### 2026-11-08 — Task 5: Module tiện ích PowerShell thuần (HostUtils.psm1) cho Native Host
 - **Định làm:** Viết `tests/host-utils.test.js`, cài đặt `native-host/HostUtils.psm1` gồm các hàm xử lý stream Native Messaging, chuyển đổi cookie Netscape, parse tiến độ & metadata, trích dẫn đối số tiến trình, lấy ID extension từ key, và tìm thư mục Downloads chuẩn Windows.
 - **Vì sao:** Đảm bảo toàn bộ logic nhị phân, UTF-8, mã hoá và trích dẫn dòng lệnh được test tự động chặt chẽ trước khi chạy host thật.
