@@ -44,6 +44,11 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Task 5: Module tiện ích PowerShell thuần (HostUtils.psm1) cho Native Host
+- **Định làm:** Viết `tests/host-utils.test.js`, cài đặt `native-host/HostUtils.psm1` gồm các hàm xử lý stream Native Messaging, chuyển đổi cookie Netscape, parse tiến độ & metadata, trích dẫn đối số tiến trình, lấy ID extension từ key, và tìm thư mục Downloads chuẩn Windows.
+- **Vì sao:** Đảm bảo toàn bộ logic nhị phân, UTF-8, mã hoá và trích dẫn dòng lệnh được test tự động chặt chẽ trước khi chạy host thật.
+- **Kết quả:** Đã hoàn thành. 10/10 test PowerShell qua node:test PASS (tổng suite 24/24 PASS). Hỗ trợ Unicode (Nhạc Trịnh 🎵), chuẩn CommandLineToArgvW, tính ID extension chính xác.
+
 ### 2026-11-08 — Task 4: Nút nổi Shadow DOM, hit-test đa lớp, tải ảnh và video trực tiếp
 - **Định làm:** Viết `tests/manual/test-page.html`, cài đặt `content.js` với Shadow DOM container, hit-test `elementsFromPoint` xuyên qua lớp phủ trong suốt, kiểm tra kích thước tối thiểu 60x60, định vị nổi ghim theo media khi scroll/resize, tải ảnh và video trực tiếp (kể cả blob image).
 - **Vì sao:** Đảm bảo trải nghiệm rê chuột mượt mà, không làm vỡ bố cục trang web, không kích hoạt click nhầm của trang khi bấm nút tải.
