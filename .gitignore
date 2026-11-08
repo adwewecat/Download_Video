@@ -1,0 +1,13 @@
+# Native host binaries and generated registration manifest
+native-host/bin/
+native-host/com.adwewecat.download_video.json
+
+# Scratch and plan tracking
+.superpowers/
+
+# Node / dependencies
+node_modules/
+
+# OS artifacts
+Thumbs.db
+Desktop.ini
