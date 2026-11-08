@@ -44,6 +44,11 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Task 3: Tạo khung extension (manifest MV3, key cố định, icons, tải trực tiếp qua service worker)
+- **Định làm:** Tạo `manifest.json` với public key cố định, tạo bộ icons 16/32/48/128, viết `background.js` xử lý message `DVI_DIRECT`, tạo file `content.js` giữ chỗ.
+- **Vì sao:** Thiết lập phần lõi extension Manifest V3 để có thể load unpacked và kích hoạt API `chrome.downloads`.
+- **Kết quả:** Đã hoàn thành. Extension ID cố định: `fdihdhkhfagoplcfmcpkjjpklcinfmbn`. Manifest MV3, service worker tải trực tiếp, icons hoàn tất.
+
 ### 2026-11-08 — Task 2: Thêm nhận diện nền tảng, permalink và định tuyến (route)
 - **Định làm:** Mở rộng `media-utils.js` và `tests/media-utils.test.js` với các hàm `detectPlatform`, `normalizePermalink`, `isPermalink`, `choosePermalink`, `chooseRoute`.
 - **Vì sao:** Xác định chính xác video nào thuộc YouTube/FB/TikTok/Insta/X/Threads và lấy đúng link gốc của video thay vì link feed.

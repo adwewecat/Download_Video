@@ -1,0 +1,41 @@
+{
+  "manifest_version": 3,
+  "name": "Download Video & Image",
+  "version": "1.0.0",
+  "description": "Tải video và hình ảnh trên mọi trang web chỉ với một cú bấm",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxMeO+CTtmK6mvmqLqPjgunffSyrr5SIPemOBhuuPKxhXocFgAN1wiiMGLpuuiH9OUncbjw7CgIV6HpSuSgqPaDiKp1zA0p8r1UQbDriJN/ImTSPB4/wyNigKbxTL3q2zW2kiB50uYz/C2A//hiKwRynJ/eJKNoQ8w3NFgBPyPZ0+w7q8bk7EQkzpug5mezOxCURuwhw7iEztS65i97pZOEYtRWb16eRqpvaVzWZffTNGya1g9i0AFP0o+RPp6iYUM24y/mU4gNP0MSLTWoZiBqLMcwx+A1ZopzhaMyDO1OWyV6/PyBRMUpiBMeP5m9rnWC13DvBrBS3Rv+UCLITzDwIDAQAB",
+  "permissions": [
+    "downloads",
+    "nativeMessaging",
+    "cookies",
+    "notifications"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content/media-utils.js",
+        "content/content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Download Video & Image"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
