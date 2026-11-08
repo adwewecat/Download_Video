@@ -112,3 +112,4 @@ Mỗi khi bạn kéo code mới từ GitHub về hoặc chỉnh sửa tính năn
 - Mã nguồn thuộc sở hữu của adwewecat (nhánh main).
 - Tất cả tài liệu hướng dẫn kỹ thuật chi tiết xem tại GEMINI.md và README.md.
 ================================================================================
+
