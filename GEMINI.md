@@ -44,6 +44,11 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-08 — Task 7: Cài đặt tự động một lần (setup.bat + setup.ps1)
+- **Định làm:** Viết `native-host/setup.bat` và `native-host/setup.ps1` để tự động tải yt-dlp, ffmpeg, Deno; sinh file manifest Native Host theo ID extension; và đăng ký Registry `HKCU` cho Chrome.
+- **Vì sao:** Đơn giản hoá tối đa quá trình cài đặt: người dùng chỉ cần click đúp `setup.bat` một lần duy nhất, kể cả khi cài lại Windows.
+- **Kết quả:** Đã hoàn thành. Tải thành công yt-dlp, ffmpeg, Deno vào `bin/`, ghi manifest Native Host và đăng ký Registry HKCU. 26/26 test PASS (kể cả smoke test giao tiếp thật với yt-dlp).
+
 ### 2026-11-08 — Task 6: Cài đặt Native Messaging Host (host.bat + host.ps1) và smoke test
 - **Định làm:** Tạo `native-host/host.bat`, `native-host/host.ps1` và `tests/native-host.smoke.test.js`.
 - **Vì sao:** Xử lý các lệnh từ Chrome extension (`ping`, `download`), chạy yt-dlp với mã hoá UTF-8, dọn dẹp file cookie tạm trong `finally`, báo tiến độ thời gian thực về extension.

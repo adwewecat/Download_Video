@@ -92,12 +92,12 @@ try {
 
     $outDir = Get-DownloadsFolder
 
-    # Chuẩn bị file cookie tạm nếu có
+    # Chuẩn bị file cookie tạm nếu có (UTF-8 không BOM)
     $cookieFile = $null
     if ($message.cookies -and $message.cookies.Count -gt 0) {
       $cookieFile = Join-Path $env:TEMP "dvi-cookies-$([guid]::NewGuid().ToString('N')).txt"
       $cookieText = ConvertTo-NetscapeCookieText -Cookies $message.cookies
-      [System.IO.File]::WriteAllText($cookieFile, $cookieText, [System.Text.Encoding]::UTF8)
+      [System.IO.File]::WriteAllText($cookieFile, $cookieText, (New-Object System.Text.UTF8Encoding $false))
     }
 
     try {
@@ -121,16 +121,8 @@ try {
       $process = New-Object System.Diagnostics.Process
       $process.StartInfo = $psi
 
-      $stderrLines = [System.Collections.Generic.List[string]]::new()
-      $process.add_ErrorDataReceived({
-        param($sender, $e)
-        if ($e.Data) {
-          $stderrLines.Add($e.Data)
-        }
-      })
-
       $null = $process.Start()
-      $process.BeginErrorReadLine()
+      $stderrTask = $process.StandardError.ReadToEndAsync()
 
       $lastPercent = -1.0
       $finalFile = $null
@@ -164,6 +156,7 @@ try {
       }
 
       $process.WaitForExit()
+      $stderrOutput = if ($stderrTask) { $stderrTask.Result } else { "" }
 
       if ($process.ExitCode -eq 0 -and $finalFile) {
         $donePayload = [ordered]@{
@@ -178,8 +171,9 @@ try {
       } else {
         # Trích xuất lỗi từ stderr
         $errorMsg = ""
-        for ($i = $stderrLines.Count - 1; $i -ge 0; $i--) {
-          $l = $stderrLines[$i]
+        $errLines = $stderrOutput -split "`r?`n"
+        for ($i = $errLines.Length - 1; $i -ge 0; $i--) {
+          $l = $errLines[$i]
           if ($l -match 'ERROR:\s*(.*)$') {
             $errorMsg = $matches[1].Trim()
             break
