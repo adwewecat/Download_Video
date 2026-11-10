@@ -77,3 +77,4 @@ class TabManagerTest {
         assertTrue(tabManager.tabCount <= TabManager.MAX_TABS, "Số tab không được vượt quá giới hạn MAX_TABS (10)")
     }
 }
+

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layoutTabCard"
+    android:layout_width="match_parent"
+    android:layout_height="170dp"
+    android:layout_margin="6dp"
+    android:orientation="vertical"
+    android:background="@drawable/bg_tab_card_normal"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Header của Thẻ Tab -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:gravity="center_vertical"
+        android:paddingStart="8dp"
+        android:paddingEnd="4dp"
+        android:background="#152136">
+
+        <TextView
+            android:id="@+id/tvTabFavicon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🌐"
+            android:textSize="14sp"
+            android:layout_marginEnd="6dp" />
+
+        <TextView
+            android:id="@+id/tvTabTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Thẻ mới"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/btnTabClose"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:gravity="center"
+            android:text="✕"
+            android:textSize="13sp"
+            android:textColor="@color/text_secondary"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/border_light" />
+
+    <!-- Khu vực hiển thị preview nội dung tóm tắt của Thẻ -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="12dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvPreviewIcon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📄"
+                android:textSize="26sp"
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:id="@+id/tvTabSnippet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="chrome://newtab"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:maxLines="2"
+                android:gravity="center"
+                android:ellipsize="end" />
+        </LinearLayout>
+    </FrameLayout>
+
+</LinearLayout>
+

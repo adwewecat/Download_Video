@@ -28,13 +28,19 @@
 
 ## 3. Trạng thái hiện tại
 
-- **Giai đoạn:** **v2.0.0 Hoàn Thành (Chrome Extension + Android Native App .apk)**.
+- **Giai đoạn:** **v2.1.0 Hoàn Thành (Chrome Extension + Android Trình duyệt chuẩn Google Chrome .apk)**.
 - **Đã có:**
   - **Chrome Extension Manifest V3 (`extension/`)**: Shadow DOM không vỡ layout, phát hiện đa tầng media, hỗ trợ tải trực tiếp và tải nền tảng (YouTube, FB, TikTok, Insta, X, Threads, HLS stream,...), lưu folder đã chọn, phím Shift tải nhanh 1-click.
   - **Native Messaging Host (`native-host/`)**: PowerShell thuần, tự động hoá hoàn toàn qua `setup.bat` (tải yt-dlp, ffmpeg, Deno, sinh manifest, đăng ký Registry HKCU).
-  - **Ứng dụng Android Native 100% độc lập (`android-app/`)**: Trình duyệt nhúng WebView, phát hiện media qua `dvi_mobile_content.js` & `DVIBridge`, nhúng Python qua Chaquopy chạy `yt-dlp` PyPI, binary FFmpeg tĩnh ARM64 muxing 2K/4K và MP3, Background Foreground Service kèm tiến độ %, lưu file an toàn vào `Downloads/Download_Video/` và quét MediaStore vào Gallery.
-  - Test suite tự động 38/38 tests PASS (`node --test "tests/*.test.js"`).
-  - Kịch bản đóng gói 1-click `android-app/build-apk.bat`.
+  - **Ứng dụng Android Native chuẩn phong cách Google Chrome (`android-app/`)**:
+    + **Thanh Omnibox thông minh:** Bo tròn kiểu viên thuốc, hiển thị khoá bảo mật 🔒 và tên miền rút gọn, nhận diện thông minh giữa URL và từ khoá tìm kiếm Google, hỗ trợ dán nhanh từ clipboard.
+    + **Trang Thẻ Mới (New Tab Page):** Thiết kế Material You với logo Google nhiều màu chuẩn thương hiệu, hộp tìm kiếm lớn ở giữa, lưới phím tắt tròn mở nhanh YouTube, Facebook, TikTok, Instagram, Threads, X, Google, Phim.
+    + **Trình Quản Lý Đa Thẻ (Multi-Tab Switcher):** Nút đếm tab `[ N ]`, lưới thẻ tab thu nhỏ 2 cột, hỗ trợ mở thêm thẻ mới `+`, đóng từng thẻ `✕` hoặc đóng tất cả thẻ an toàn giải phóng bộ nhớ.
+    + **Menu ba chấm ⋮:** Thẻ mới, Tải lại, bật/tắt **Trang web cho máy tính** (Desktop Site), mở **Tệp đã tải xuống**, và **Xoá dữ liệu duyệt web** (cache, cookie, web storage) 1-click.
+    + **Trình Quản Lý Tệp Đã Tải Xuống (Downloads BottomSheet):** Liệt kê chi tiết toàn bộ video, nhạc MP3, ảnh trong `Downloads/Download_Video/`, hỗ trợ mở phát trực tiếp qua VLC/Thư viện ảnh, chia sẻ tệp sang Zalo/Drive/Messenger và xoá tệp an toàn.
+    + **Độc lập 100% trong máy:** Nhúng Python qua Chaquopy chạy `yt-dlp` PyPI, binary FFmpeg tĩnh ARM64 muxing 2K/4K và MP3, Background Foreground Service kèm tiến độ %, lưu file an toàn vào `Downloads/Download_Video/` và quét MediaStore vào Gallery.
+  - Test suite tự động: 38/38 tests Node.js PASS + toàn bộ Kotlin Unit Tests PASS.
+  - Kịch bản đóng gói 1-click: `build-apk.bat` (tại thư mục gốc) và `android-app/build-apk.bat`.
 
 ---
 
@@ -51,14 +57,14 @@
   - [x] Task 6: Dịch vụ tải ngầm (`DownloadService`), Đồng bộ Cookie (`CookieUtils.kt`) & MediaStore (`StorageUtils.kt`).
   - [x] Task 7: Màn hình chính Dashboard (`MainActivity`) & Danh bạ Bookmarks (`BookmarkAdapter.kt`).
   - [x] Task 8: Script tự động hoá đóng gói APK (`build-apk.bat`) & Tài liệu hướng dẫn.
-- [ ] **Nâng cấp ứng dụng Android thành Trình duyệt chuẩn Google Chrome (v2.1.0):**
+- [x] **Nâng cấp ứng dụng Android thành Trình duyệt chuẩn Google Chrome (v2.1.0):**
   - [x] Task 1: Xây dựng Mô hình Đa Thẻ & Bộ quản lý Tab (`TabManager.kt` & `WebTab.kt`).
-  - [ ] Task 2: Giao diện Trang Thẻ Mới (New Tab Page) chuẩn Chrome.
-  - [ ] Task 3: Thanh Omnibox kiểu Chrome, Menu 3 Chấm & Hộp thoại Nhập Liệu.
-  - [ ] Task 4: Trình chuyển đổi Thẻ (Tab Switcher Screen).
-  - [ ] Task 5: Trình Quản Lý Tệp Đã Tải Xuống (Downloads BottomSheet).
-  - [ ] Task 6: Tích hợp Toàn diện `MainActivity.kt` thành Trình duyệt Chrome Hoàn chỉnh.
-  - [ ] Task 7: Đóng gói APK, Kiểm thử Tự động & Cập nhật Tài liệu.
+  - [x] Task 2: Giao diện Trang Thẻ Mới (New Tab Page) chuẩn Chrome.
+  - [x] Task 3: Thanh Omnibox kiểu Chrome, Menu 3 Chấm & Hộp thoại Nhập Liệu.
+  - [x] Task 4: Trình chuyển đổi Thẻ (Tab Switcher Screen).
+  - [x] Task 5: Trình Quản Lý Tệp Đã Tải Xuống (Downloads BottomSheet).
+  - [x] Task 6: Tích hợp Toàn diện `MainActivity.kt` thành Trình duyệt Chrome Hoàn chỉnh.
+  - [x] Task 7: Đóng gói APK, Kiểm thử Tự động & Cập nhật Tài liệu.
 - [ ] *(Ý tưởng tương lai)*: Thêm tuỳ chọn tải phụ đề rời (.srt) hoặc tải danh sách phát (Playlist).
 
 ---
@@ -75,7 +81,7 @@
   6. Tích hợp tất cả vào `MainActivity.kt`, kết nối `dvi_mobile_content.js` và `DownloadService` để tải media độc lập.
   7. Biên dịch đóng gói file APK mới và cập nhật toàn bộ tài liệu hướng dẫn.
 - **Vì sao:** Người dùng mong muốn ứng dụng hoạt động và mang lại trải nghiệm chuẩn như trình duyệt Google Chrome trên điện thoại, thay vì cấu trúc mở web rời rạc.
-- **Kết quả:** Task 1 hoàn thành 100%: đã xây dựng `WebTab.kt` và `TabManager.kt`, hoàn tất unit test `TabManagerTest.kt` với toàn bộ assertions PASS (quản lý 10 tab, New Tab mặc định, giới hạn bộ nhớ). Đang thực hiện Task 2.
+- **Kết quả:** Đã hoàn thành 100% toàn bộ 7 Task. Ứng dụng Android đã mang diện mạo và trải nghiệm chuẩn Google Chrome Mobile với thanh Omnibox thông minh, trang New Tab Material You, quản lý đa thẻ Tab Switcher `[ N ]`, menu 3 chấm `⋮`, trình quản lý tệp đã tải xuống Downloads BottomSheet, và giữ nguyên 100% khả năng tải media độc lập bằng Chaquopy Python + yt-dlp + FFmpeg ARM64. Toàn bộ 38/38 Node.js tests và các bài Android unit test PASS, file APK mới được biên dịch và đóng gói thành công.
 
 
 

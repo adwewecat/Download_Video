@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_new_tab"
+        android:title="Thẻ mới"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_reload"
+        android:title="Tải lại trang"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_desktop_site"
+        android:title="Trang web cho máy tính"
+        android:checkable="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_downloads"
+        android:title="Tệp đã tải xuống"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_clear_data"
+        android:title="Xoá dữ liệu duyệt web"
+        app:showAsAction="never" />
+</menu>
+

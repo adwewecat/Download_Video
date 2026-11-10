@@ -187,6 +187,7 @@ class BrowserActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
         )
     }
 
+    @Suppress("DEPRECATION")
     @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (webView.canGoBack()) {

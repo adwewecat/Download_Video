@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?attr/selectableItemBackgroundBorderless"
+    android:padding="8dp">
+
+    <FrameLayout
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:background="@drawable/bg_chrome_shortcut_circle">
+
+        <TextView
+            android:id="@+id/tvShortcutEmoji"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="🌐"
+            android:textSize="26sp" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tvShortcutTitle"
+        android:layout_width="72dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:text="Trang web"
+        android:textColor="@color/text_primary"
+        android:textSize="12sp" />
+</LinearLayout>
+

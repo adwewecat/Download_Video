@@ -16,3 +16,4 @@ data class WebTab(
     val isNewTabPage: Boolean
         get() = url == TabManager.NEW_TAB_URL || url.isBlank()
 }
+

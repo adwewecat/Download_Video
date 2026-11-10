@@ -120,9 +120,14 @@ Mỗi khi bạn kéo code mới từ GitHub về hoặc chỉnh sửa tính năn
 2. CÀI ĐẶT VÀO ĐIỆN THOẠI:
    - Gửi file .apk vào điện thoại qua Zalo (gửi dạng File), Google Drive, hoặc cắm cáp USB chép trực tiếp vào máy.
    - Trên điện thoại, nhấp vào file .apk và chọn Cài đặt (nếu máy hỏi quyền 'Cài đặt ứng dụng không rõ nguồn gốc', chọn Cho phép).
-3. SỬ DỤNG TRÊN ĐIỆN THOẠI:
-   - Mở ứng dụng 'Download Video', chọn icon YouTube, Facebook, TikTok, Instagram hoặc dán link bất kỳ.
-   - Khi video phát, nút nổi cảm ứng [⬇ Tải về] sẽ xuất hiện trên video và nút FAB ở góc dưới màn hình sẽ sáng lên.
+3. SỬ DỤNG TRÊN ĐIỆN THOẠI (TRÌNH DUYỆT CHUẨN GOOGLE CHROME):
+   - Mở ứng dụng 'Download Video', bạn sẽ thấy giao diện chuẩn Google Chrome di động:
+     + Trang Thẻ Mới (New Tab): Logo Google nhiều màu, thanh tìm kiếm lớn ở giữa, lưới icon tròn (YouTube, FB, TikTok, Insta, Threads, X, Phim, Google).
+     + Thanh Omnibox trên cùng: Bo tròn kiểu viên thuốc, hiện ổ khoá 🔒 và tên miền, gõ từ khoá tìm kiếm hoặc dán URL trực tiếp.
+     + Nút Đa Thẻ [ N ]: Chạm vào ô số thẻ để mở danh sách thẻ dạng lưới thu nhỏ, mở thêm thẻ mới (+), đóng thẻ (✕).
+     + Menu 3 chấm ⋮: Mở Thẻ mới, Tải lại, Trang web cho máy tính (Desktop Site), Tệp đã tải xuống, Xoá dữ liệu duyệt web.
+     + Mục 'Tệp đã tải xuống': Xem lại danh sách video/nhạc/ảnh đã tải, chạm mở phát ngay, chia sẻ qua Zalo/Drive hoặc xoá tệp.
+   - Khi video phát, nút nổi cảm ứng [⬇ Tải về] sẽ xuất hiện trên video và nút FAB ở góc dưới màn hình sẽ sáng lên kèm số lượng media phát hiện.
    - Chọn [⬇ Tải tương thích], [MAX 2K/4K] hoặc [MP3]. Video sẽ tải ngầm và xuất hiện ngay trong Thư viện ảnh / Bộ sưu tập của điện thoại.
 
 ================================================================================

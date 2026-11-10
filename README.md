@@ -95,19 +95,24 @@ Bao gồm:
 
 ---
 
-## 5. Phiên bản Ứng dụng Mobile Android Native (.apk)
+## 5. Phiên bản Ứng dụng Mobile Android Native (.apk) — Chuẩn Google Chrome
 
-Dự án cung cấp ứng dụng Android Native hoạt động **độc lập 100% trong máy điện thoại** (không cần máy chủ, không phụ thuộc bên ngoài):
-- **Trình duyệt nhúng đa năng:** Mở app ra là có sẵn danh bạ mở nhanh YouTube, Facebook, TikTok, Instagram, X (Twitter), Threads, Google, trang phim/stream hoặc dán bất kỳ link web nào.
-- **Phát hiện media tự động:** Khi video phát, nút nổi cảm ứng **⬇ Tải về** sẽ hiện ngay trên video và nút **FAB nổi ở góc màn hình** sáng lên kèm số lượng media phát hiện.
-- **Tải độc lập qua yt-dlp & FFmpeg nội bộ:**
+Dự án cung cấp ứng dụng Android Native hoạt động **độc lập 100% trong máy điện thoại** (không cần máy chủ, không phụ thuộc bên ngoài), được thiết kế hoàn chỉnh theo phong cách **Google Chrome di động**:
+- **Trình duyệt chuẩn Chrome:**
+  - **Thanh Omnibox thông minh:** Bo tròn kiểu viên thuốc, hiển thị biểu tượng khoá bảo mật 🔒 và tên miền rút gọn, tự động nhận diện URL hoặc từ khóa tìm kiếm qua Google.
+  - **Trang Thẻ Mới (New Tab Page):** Thiết kế Material You với logo Google nhiều màu, ô tìm kiếm lớn ở giữa và lưới phím tắt tròn mở nhanh các mạng xã hội (YouTube, Facebook, TikTok, Instagram, Threads, X, Phim, Google).
+  - **Trình Quản Lý Đa Thẻ (Multi-Tab Switcher):** Nút đếm số thẻ `[ N ]`, hiển thị danh sách thẻ dạng lưới thu nhỏ, hỗ trợ mở thêm thẻ mới `+`, đóng từng thẻ `✕` hoặc đóng tất cả thẻ.
+  - **Menu ba chấm ⋮ chuẩn Chrome:** Hỗ trợ mở Thẻ mới, Tải lại trang, bật/tắt **Trang web cho máy tính** (Desktop Site), mở **Tệp đã tải xuống**, và **Xoá dữ liệu duyệt web** (cache, cookie, storage) 1-click.
+  - **Trình Quản Lý Tệp Đã Tải Xuống (Downloads BottomSheet):** Liệt kê chi tiết toàn bộ video, nhạc MP3, ảnh trong thư mục `Downloads/Download_Video/`, hỗ trợ mở phát trực tiếp qua VLC/Bộ sưu tập, chia sẻ sang Zalo/Drive/Messenger và xoá tệp an toàn.
+- **Phát hiện media tự động & Tải độc lập:**
+  - Nút nổi cảm ứng **⬇ Tải về** xuất hiện ngay trên video và nút **FAB nổi ở góc màn hình** sáng lên kèm số lượng media phát hiện trên thẻ hiện tại.
   - Nhúng Python 3 qua Chaquopy chạy trực tiếp `yt-dlp` trên chip điện thoại (ARM64-v8a / armeabi-v7a).
   - Tích hợp binary `ffmpeg` tĩnh để muxing video 2K/4K và trích xuất file âm thanh MP3 (320kbps).
   - Đồng bộ Cookie từ WebView để tải cả video riêng tư, Reels cá nhân đã đăng nhập.
   - Tự động lưu vào thư mục `Downloads/Download_Video/` và kích hoạt `MediaScannerConnection` để video/ảnh/nhạc xuất hiện ngay trong Thư viện ảnh / Google Photos / Trình phát nhạc của điện thoại.
 - **Đóng gói file .apk:**
-  - Chạy file `android-app/build-apk.bat` hoặc mở thư mục `android-app` bằng Android Studio và chọn **Build > Build APK(s)**.
-  - File `.apk` tạo ra có thể gửi qua Zalo, Drive hoặc chép qua cáp USB vào điện thoại để cài đặt và sử dụng ngay lập tức.
+  - Chạy file `build-apk.bat` ngay tại thư mục gốc dự án hoặc vào `android-app/build-apk.bat`.
+  - File `.apk` tạo ra tại `android-app/dist/DownloadVideoImage.apk` có thể cài đặt trực tiếp vào điện thoại Android.
 
 ---
 

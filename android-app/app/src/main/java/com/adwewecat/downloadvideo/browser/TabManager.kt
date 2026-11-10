@@ -102,3 +102,4 @@ class TabManager {
         return _tabs.getOrNull(activeTabIndex)
     }
 }
+

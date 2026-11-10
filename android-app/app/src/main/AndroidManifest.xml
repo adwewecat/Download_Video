@@ -32,11 +32,12 @@
         android:theme="@style/Theme.DownloadVideoImage"
         android:usesCleartextTraffic="true">
 
-        <!-- Màn hình chính Dashboard danh bạ trang web -->
+        <!-- Màn hình chính Trình duyệt chuẩn phong cách Chrome -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="adjustPan">
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
