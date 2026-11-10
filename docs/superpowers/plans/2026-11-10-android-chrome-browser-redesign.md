@@ -190,3 +190,4 @@
   - Xác nhận build thành công và file APK mới xuất hiện tại `dist/DownloadVideoImage.apk`.
 - [ ] **Step 3: Cập nhật tài liệu hướng dẫn (`README.md`, `HUONG_DAN_CAI_DAT.txt`, `GEMINI.md`)**
 - [ ] **Step 4: Commit và git push lên GitHub main**
+

@@ -27,7 +27,7 @@ class FFmpegInstallerTest {
         testFile.writeText("echo test")
 
         // Kiểm tra logic setExecutable
-        val canSet = testFile.setExecutable(true, false)
+        testFile.setExecutable(true, false)
         assertTrue(testFile.exists(), "File test phải tồn tại")
         
         testFile.delete()

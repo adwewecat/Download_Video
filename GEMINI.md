@@ -51,11 +51,33 @@
   - [x] Task 6: Dịch vụ tải ngầm (`DownloadService`), Đồng bộ Cookie (`CookieUtils.kt`) & MediaStore (`StorageUtils.kt`).
   - [x] Task 7: Màn hình chính Dashboard (`MainActivity`) & Danh bạ Bookmarks (`BookmarkAdapter.kt`).
   - [x] Task 8: Script tự động hoá đóng gói APK (`build-apk.bat`) & Tài liệu hướng dẫn.
+- [ ] **Nâng cấp ứng dụng Android thành Trình duyệt chuẩn Google Chrome (v2.1.0):**
+  - [x] Task 1: Xây dựng Mô hình Đa Thẻ & Bộ quản lý Tab (`TabManager.kt` & `WebTab.kt`).
+  - [ ] Task 2: Giao diện Trang Thẻ Mới (New Tab Page) chuẩn Chrome.
+  - [ ] Task 3: Thanh Omnibox kiểu Chrome, Menu 3 Chấm & Hộp thoại Nhập Liệu.
+  - [ ] Task 4: Trình chuyển đổi Thẻ (Tab Switcher Screen).
+  - [ ] Task 5: Trình Quản Lý Tệp Đã Tải Xuống (Downloads BottomSheet).
+  - [ ] Task 6: Tích hợp Toàn diện `MainActivity.kt` thành Trình duyệt Chrome Hoàn chỉnh.
+  - [ ] Task 7: Đóng gói APK, Kiểm thử Tự động & Cập nhật Tài liệu.
 - [ ] *(Ý tưởng tương lai)*: Thêm tuỳ chọn tải phụ đề rời (.srt) hoặc tải danh sách phát (Playlist).
 
 ---
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
+
+### 2026-11-11 — Nâng cấp ứng dụng Android thành Trình duyệt chuẩn Google Chrome (Tasks 1 - 7)
+- **Định làm:**
+  1. Xây dựng cấu trúc đa thẻ `WebTab` và `TabManager` quản lý lên tới 10 tab trong bộ nhớ.
+  2. Tạo giao diện New Tab chuẩn Chrome với logo Google, ô tìm kiếm lớn và lưới phím tắt tròn.
+  3. Xây dựng thanh công cụ Omnibox với nút Home 🏠, ổ khóa bảo mật 🔒, tên miền ngắn gọn, nút đếm tab `[ N ]`, và menu 3 chấm `⋮` (Desktop site, Downloads, Reload, New Tab).
+  4. Tạo màn hình Tab Switcher hiển thị danh sách tab dạng lưới thẻ, hỗ trợ mở thẻ mới `+` và đóng thẻ `✕`.
+  5. Xây dựng BottomSheet quản lý file tải về (Downloads) hỗ trợ mở phát, chia sẻ và xoá file.
+  6. Tích hợp tất cả vào `MainActivity.kt`, kết nối `dvi_mobile_content.js` và `DownloadService` để tải media độc lập.
+  7. Biên dịch đóng gói file APK mới và cập nhật toàn bộ tài liệu hướng dẫn.
+- **Vì sao:** Người dùng mong muốn ứng dụng hoạt động và mang lại trải nghiệm chuẩn như trình duyệt Google Chrome trên điện thoại, thay vì cấu trúc mở web rời rạc.
+- **Kết quả:** Task 1 hoàn thành 100%: đã xây dựng `WebTab.kt` và `TabManager.kt`, hoàn tất unit test `TabManagerTest.kt` với toàn bộ assertions PASS (quản lý 10 tab, New Tab mặc định, giới hạn bộ nhớ). Đang thực hiện Task 2.
+
+
 
 ### 2026-11-10 — Bổ sung tài nguyên icon mipmap/ic_launcher để hoàn tất liên kết tài nguyên AAPT và build file APK
 - **Định làm:**
