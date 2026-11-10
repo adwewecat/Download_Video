@@ -107,7 +107,7 @@ try {
       # Bỏ qua lỗi tự cập nhật
     }
 
-    $outDir = Get-DownloadsFolder
+    $outDir = Get-LastDownloadFolder -ConfigDir $binDir
     $outTemplate = '%(title).150B [%(id)s].%(ext)s'
 
     # Hiển thị hộp thoại Save As để người dùng chọn thư mục và đặt tên file nếu muốn
@@ -127,7 +127,16 @@ try {
       }
 
       $outDir = [System.IO.Path]::GetDirectoryName($chosenFile)
+      # Ghi nhớ thư mục đã chọn cho các lần tải kế tiếp
+      Set-LastDownloadFolder -FolderPath $outDir -ConfigDir $binDir
       $chosenBase = [System.IO.Path]::GetFileNameWithoutExtension($chosenFile)
+      $outTemplate = "$chosenBase.%(ext)s"
+    } else {
+      # Chế độ tải nhanh không mở hộp thoại: lưu thẳng vào thư mục đã nhớ kèm timestamp
+      $fileExt = if ($quality -eq 'mp3') { 'mp3' } else { 'mp4' }
+      $timestamp = (Get-Date).ToString("yyyyMMddHHmmssfff")
+      $defaultFileName = Get-SanitizedFileName -Title $title -Ext $fileExt -Timestamp $timestamp
+      $chosenBase = [System.IO.Path]::GetFileNameWithoutExtension($defaultFileName)
       $outTemplate = "$chosenBase.%(ext)s"
     }
 

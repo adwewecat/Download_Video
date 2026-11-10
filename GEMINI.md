@@ -49,6 +49,25 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-10 — Thêm tính năng: Ghi nhớ thư mục lưu video đã chọn và hỗ trợ tải nhanh
+- **Định làm:**
+  1. Trong `native-host/HostUtils.psm1`:
+     - Thêm 2 hàm `Get-LastDownloadFolder` và `Set-LastDownloadFolder` để đọc và ghi nhớ đường dẫn thư mục tải gần nhất vào file `native-host/bin/last-folder.txt`. Nếu chưa có thì mặc định dùng thư mục `Downloads`.
+     - Xuất 2 hàm qua `Export-ModuleMember`.
+     - Cập nhật `Show-SaveFileDialog`: thiết lập `$sfd.RestoreDirectory = $false` và kiểm tra `$InitialDir` hợp lệ để hộp thoại luôn mở sẵn tại thư mục đã nhớ.
+  2. Trong `native-host/host.ps1`:
+     - Khởi tạo `$outDir = Get-LastDownloadFolder -ConfigDir $binDir`.
+     - Khi người dùng chọn thư mục và lưu file: tự động gọi `Set-LastDownloadFolder` để ghi nhớ cho các lần tải sau.
+     - Khi `noPrompt = true`: tự động lưu thẳng vào `$outDir` đã nhớ kèm timestamp mà không cần mở hộp thoại.
+  3. Trong `extension/content/content.js` và `extension/background.js`:
+     - Bổ sung phím tắt: Giữ phím `Shift` + click nút tải (⬇ / MAX / MP3) để kích hoạt chế độ tải nhanh (`noPrompt: true`), tự động lưu vào thư mục đã chọn trước đó mà không cần xác nhận hộp thoại Save As.
+     - Click chuột bình thường: hộp thoại Save As tự động mở ra ngay tại thư mục đã lưu trước đó, người dùng chỉ việc bấm Save/Enter mà không phải chọn lại thư mục đích.
+  4. Viết unit test trong `tests/host-utils.test.js`, chạy toàn bộ test suite.
+  5. Cập nhật `README.md`, `HUONG_DAN_CAI_DAT.txt`, `GEMINI.md`, commit và `git push origin main`.
+- **Vì sao:** Người dùng phản ánh mỗi lần tải video đều phải tự tay duyệt và chọn lại thư mục đích trên máy tính (do hộp thoại luôn mở ở Downloads). Cần cơ chế tự động ghi nhớ thư mục đã chọn gần nhất và hỗ trợ tải nhanh 1-click vào thư mục đã lưu.
+- **Kết quả:** Đã hoàn thành. Hộp thoại Save As tự động ghi nhớ và mở sẵn tại thư mục đã chọn trước đó (lưu tại `native-host/bin/last-folder.txt`), không bắt người dùng duyệt lại folder. Bổ sung tính năng giữ phím `Shift` khi click để tải nhanh 1-click vào thư mục đã nhớ mà không cần mở hộp thoại. Toàn bộ 34/34 tests PASS. Sẵn sàng commit và push.
+
+
 ### 2026-11-10 — Sửa lỗi: Tải video Instagram Reel ngay trên bảng tin (feed/home) bị lỗi Unsupported URL
 - **Định làm:**
   1. Trong `extension/content/media-utils.js`:

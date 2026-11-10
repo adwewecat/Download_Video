@@ -62,6 +62,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       platform: message.platform,
       quality: message.quality || 'compatible',
       title: message.title || '',
+      noPrompt: !!message.noPrompt,
       tabId: sender.tab ? sender.tab.id : null,
       frameId: sender.frameId || 0
     });
@@ -177,7 +178,7 @@ function sendToTab(tabId, frameId, msg) {
 /**
  * Quản lý vòng đời của một tác vụ tải qua yt-dlp Native Host.
  */
-async function startYtDlpJob({ jobId, url, referer, platform, quality, title, tabId, frameId }) {
+async function startYtDlpJob({ jobId, url, referer, platform, quality, title, noPrompt, tabId, frameId }) {
   updateBadge(1);
 
   let finished = false;
@@ -273,6 +274,7 @@ async function startYtDlpJob({ jobId, url, referer, platform, quality, title, ta
       referer: referer || '',
       quality,
       title,
+      noPrompt: !!noPrompt,
       cookies
     });
   } catch (e) {

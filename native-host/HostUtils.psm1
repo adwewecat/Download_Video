@@ -382,6 +382,49 @@ function Get-DownloadsFolder {
   return (Join-Path $env:USERPROFILE "Downloads")
 }
 
+function Get-LastDownloadFolder {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $false)]
+    [string]$ConfigDir = ''
+  )
+
+  if ($ConfigDir) {
+    $cfgFile = Join-Path $ConfigDir "last-folder.txt"
+    if (Test-Path $cfgFile) {
+      try {
+        $saved = (Get-Content $cfgFile -Raw -Encoding UTF8).Trim()
+        if ($saved -and (Test-Path $saved)) {
+          return $saved
+        }
+      } catch {}
+    }
+  }
+
+  return Get-DownloadsFolder
+}
+
+function Set-LastDownloadFolder {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory = $true)]
+    [string]$FolderPath,
+
+    [Parameter(Mandatory = $false)]
+    [string]$ConfigDir = ''
+  )
+
+  if ($FolderPath -and (Test-Path $FolderPath) -and $ConfigDir) {
+    try {
+      if (-not (Test-Path $ConfigDir)) {
+        New-Item -ItemType Directory -Path $ConfigDir -Force | Out-Null
+      }
+      $cfgFile = Join-Path $ConfigDir "last-folder.txt"
+      [System.IO.File]::WriteAllText($cfgFile, $FolderPath.Trim(), [System.Text.Encoding]::UTF8)
+    } catch {}
+  }
+}
+
 function Get-SanitizedFileName {
   [CmdletBinding()]
   param (
@@ -451,7 +494,7 @@ function Show-SaveFileDialog {
       $sfd.Filter = "Video MP4 (*.mp4)|*.mp4|Tất cả tệp (*.*)|*.*"
     }
     $sfd.FilterIndex = 1
-    $sfd.RestoreDirectory = $true
+    $sfd.RestoreDirectory = $false
 
     # Su dung form topmost an de hop thoai luon noi len tren trinh duyet
     $form = New-Object System.Windows.Forms.Form
@@ -498,6 +541,8 @@ Export-ModuleMember -Function @(
   'Get-YtDlpArguments',
   'Get-ExtensionIdFromKey',
   'Get-DownloadsFolder',
+  'Get-LastDownloadFolder',
+  'Set-LastDownloadFolder',
   'Get-SanitizedFileName',
   'Show-SaveFileDialog',
   'Open-FolderAndSelect',

@@ -147,6 +147,7 @@
   // Nút tải chính (⬇)
   const btnDownload = document.createElement('button');
   btnDownload.className = 'dvi-btn dvi-btn-primary';
+  btnDownload.title = 'Tải về (tự nhớ thư mục đã lưu • Giữ Shift để tải nhanh không hỏi lại)';
   btnDownload.innerHTML = `
     <svg class="dvi-icon" viewBox="0 0 24 24">
       <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
@@ -158,7 +159,7 @@
   const btnMax = document.createElement('button');
   btnMax.className = 'dvi-btn dvi-btn-max';
   btnMax.textContent = 'MAX';
-  btnMax.title = 'Tải video nét nhất (2K/4K)';
+  btnMax.title = 'Tải video nét nhất (2K/4K) • Giữ Shift để tải nhanh';
   btnMax.style.display = 'none';
   bar.appendChild(btnMax);
 
@@ -166,7 +167,7 @@
   const btnMp3 = document.createElement('button');
   btnMp3.className = 'dvi-btn dvi-btn-mp3';
   btnMp3.textContent = 'MP3';
-  btnMp3.title = 'Tải riêng âm thanh MP3';
+  btnMp3.title = 'Tải riêng âm thanh MP3 • Giữ Shift để tải nhanh';
   btnMp3.style.display = 'none';
   bar.appendChild(btnMp3);
 
@@ -623,7 +624,7 @@
   /**
    * Xử lý hành động tải khi bấm nút.
    */
-  async function triggerDownload(quality = 'compatible') {
+  async function triggerDownload(quality = 'compatible', noPrompt = false) {
     if (!activeTarget) return;
 
     const { element, mediaType, url, urlKind, platform, route } = activeTarget;
@@ -727,7 +728,8 @@
             referer: window.location.href,
             platform,
             quality,
-            title: pageTitle
+            title: pageTitle,
+            noPrompt: !!noPrompt
           },
           (res) => {
             if (chrome.runtime.lastError) {
@@ -758,23 +760,23 @@
     }
   }
 
-  // Bắt sự kiện click vào nút
+  // Bắt sự kiện click vào nút (hỗ trợ giữ Shift để tải nhanh không hỏi lại)
   btnDownload.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    triggerDownload('compatible');
+    triggerDownload('compatible', e.shiftKey);
   });
 
   btnMax.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    triggerDownload('best');
+    triggerDownload('best', e.shiftKey);
   });
 
   btnMp3.addEventListener('click', (e) => {
     e.preventDefault();
     e.stopPropagation();
-    triggerDownload('mp3');
+    triggerDownload('mp3', e.shiftKey);
   });
 
   // Lắng nghe cập nhật tiến độ / kết quả từ service worker (phục vụ Task 8)

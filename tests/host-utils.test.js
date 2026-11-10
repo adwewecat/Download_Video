@@ -256,3 +256,33 @@ test('Resolve-StreamUrl: giữ nguyên direct stream và trích xuất từ embe
   assert.equal(res.u3, 'https://normal.com/watch?v=1');
 });
 
+test('Get/Set-LastDownloadFolder: ghi nhớ và đọc lại thư mục đã chọn', () => {
+  const cmd = `
+    $tmpDir = Join-Path $env:TEMP ("dvi-test-cfg-" + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $tmpDir -Force | Out-Null
+    try {
+      $defaultDir = Get-LastDownloadFolder -ConfigDir $tmpDir
+      Set-LastDownloadFolder -FolderPath $env:TEMP -ConfigDir $tmpDir
+      $savedDir = Get-LastDownloadFolder -ConfigDir $tmpDir
+
+      # Thu voi file chua duong dan khong con ton tai
+      $cfgFile = Join-Path $tmpDir "last-folder.txt"
+      [System.IO.File]::WriteAllText($cfgFile, 'Z:\NonExistentFolder123', [System.Text.Encoding]::UTF8)
+      $fallbackDir = Get-LastDownloadFolder -ConfigDir $tmpDir
+
+      [PSCustomObject]@{
+        defaultDir  = $defaultDir
+        savedDir    = $savedDir
+        fallbackDir = $fallbackDir
+      } | ConvertTo-Json -Compress
+    } finally {
+      Remove-Item $tmpDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
+  `;
+  const res = JSON.parse(ps(cmd));
+  assert.ok(res.defaultDir);
+  assert.equal(res.savedDir.toLowerCase(), process.env.TEMP.toLowerCase());
+  assert.equal(res.fallbackDir.toLowerCase(), res.defaultDir.toLowerCase());
+});
+
+
