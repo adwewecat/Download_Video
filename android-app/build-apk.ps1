@@ -39,6 +39,8 @@ if (-not $jdkPath) {
 
 if (-not $jdkPath) {
     $potentialJdkDirs = @(
+        "D:\Setup\Build_SDK_Mobile",
+        "D:\Setup\Build_SDK_Mobile\Android\Android Studio\jbr",
         "C:\Program Files\Java",
         "C:\Program Files\Eclipse Adoptium",
         "C:\Program Files\Microsoft\jdk*",
@@ -75,23 +77,57 @@ if ($jdkPath) {
 }
 
 # -----------------------------------------------------------------------------
-# 2. TIM KIEM ANDROID SDK
+# 2. TIM KIEM ANDROID STUDIO & ANDROID SDK
 # -----------------------------------------------------------------------------
 Write-Host ""
-Write-Host "[2/4] Kiem tra Android SDK..." -ForegroundColor Yellow
+Write-Host "[2/4] Kiem tra Android Studio & Android SDK..." -ForegroundColor Yellow
 
+# Kiểm tra Android Studio đã cài đặt
+$studioExe = $null
+$potentialStudioDirs = @(
+    "D:\Setup\Build_SDK_Mobile\Android\Android Studio\bin\studio64.exe",
+    "C:\Program Files\Android\Android Studio\bin\studio64.exe",
+    "$env:LOCALAPPDATA\Programs\Android Studio\bin\studio64.exe"
+)
+foreach ($exe in $potentialStudioDirs) {
+    if (Test-Path $exe) {
+        $studioExe = $exe
+        break
+    }
+}
+
+if ($studioExe) {
+    Write-Host "[OK] Da tim thay Android Studio tai: $studioExe" -ForegroundColor Green
+}
+
+# Kiểm tra Android SDK
 $sdkPath = $null
+$potentialSdkDirs = @(
+    $env:ANDROID_HOME,
+    $env:ANDROID_SDK_ROOT,
+    "D:\Setup\Build_SDK_Mobile\Sdk",
+    "D:\Setup\Build_SDK_Mobile\Android\Sdk",
+    "D:\Setup\Build_SDK_Mobile\android-sdk",
+    "D:\Android\Sdk",
+    "C:\Android\Sdk",
+    (Join-Path $env:LOCALAPPDATA "Android\Sdk"),
+    (Join-Path $binDir "android-sdk")
+)
 
-if ($env:ANDROID_HOME -and (Test-Path $env:ANDROID_HOME)) {
-    $sdkPath = $env:ANDROID_HOME
-} elseif ($env:ANDROID_SDK_ROOT -and (Test-Path $env:ANDROID_SDK_ROOT)) {
-    $sdkPath = $env:ANDROID_SDK_ROOT
-} else {
-    $defaultSdk = Join-Path $env:LOCALAPPDATA "Android\Sdk"
-    if (Test-Path $defaultSdk) {
-        $sdkPath = $defaultSdk
-    } elseif (Test-Path (Join-Path $binDir "android-sdk")) {
-        $sdkPath = Join-Path $binDir "android-sdk"
+foreach ($dir in $potentialSdkDirs) {
+    if ($dir -and (Test-Path $dir) -and (Test-Path (Join-Path $dir "platform-tools") -or Test-Path (Join-Path $dir "platforms") -or Test-Path (Join-Path $dir "build-tools"))) {
+        $sdkPath = $dir
+        break
+    }
+}
+
+# Nếu có thư mục Sdk trống hoặc chỉ mới tạo
+if (-not $sdkPath) {
+    foreach ($dir in $potentialSdkDirs) {
+        if ($dir -and (Test-Path $dir)) {
+            $sdkPath = $dir
+            break
+        }
     }
 }
 
@@ -108,7 +144,34 @@ if ($sdkPath) {
 }
 
 # -----------------------------------------------------------------------------
-# 3. NEU THIEU MOI TRUONG, DUA RA HUONG DAN CHI TIET
+# 3. NEU CO ANDROID STUDIO NHUNG CHUA TAI SDK
+# -----------------------------------------------------------------------------
+if (-not $sdkPath -and $studioExe) {
+    Write-Host ""
+    Write-Host "=====================================================================" -ForegroundColor Yellow
+    Write-Host "  DA TIM THAY ANDROID STUDIO NHUNG CHUA HOAN TAT TAI ANDROID SDK." -ForegroundColor Yellow
+    Write-Host "=====================================================================" -ForegroundColor Yellow
+    Write-Host "Khi cai Android Studio lan dau tu bo cai .exe, ban can mo Android Studio len 1 lan"
+    Write-Host "de hop thoai Setup Wizard tu dong tai bo Android SDK (khoang 1-2 phut)."
+    Write-Host ""
+    Write-Host "Cac buoc cuc ky don gian:" -ForegroundColor Cyan
+    Write-Host "  1. Mo Android Studio."
+    Write-Host "  2. Bam 'Next' -> Chon 'Standard' -> Bam 'Next' (Android Studio se tai SDK)."
+    Write-Host "  3. Khi tai xong, bam 'Finish'."
+    Write-Host "  4. Chay lai file build-apk.bat nay de dong goi file .apk ngay lap tuc!"
+    Write-Host "=====================================================================" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "Ban co muon tu dong mo Android Studio ngay bay gio khong? (Y/N, mac dinh Y): " -NoNewline -ForegroundColor Green
+    $ans = Read-Host
+    if (-not $ans -or $ans.Trim().ToUpper() -eq "Y") {
+        Write-Host "Dang khoi chay Android Studio..." -ForegroundColor Cyan
+        Start-Process "$studioExe"
+    }
+    exit 0
+}
+
+# -----------------------------------------------------------------------------
+# 4. NEU THIEU CA MOI TRUONG, DUA RA HUONG DAN CHI TIET
 # -----------------------------------------------------------------------------
 if (-not $jdkPath -or -not $sdkPath) {
     Write-Host ""
@@ -118,12 +181,9 @@ if (-not $jdkPath -or -not $sdkPath) {
     Write-Host "Ban co 2 cach cuc ky don gian de build file .apk:"
     Write-Host ""
     Write-Host " [CACH 1 - KHUYEN DUNG]: Dung Android Studio (Co san giao dien truc quan)" -ForegroundColor Cyan
-    Write-Host "   1. Cai dat Android Studio tu trang chu: https://developer.android.com/studio"
-    Write-Host "   2. Mo Android Studio, chon 'Open' -> Chon thu muc:"
-    Write-Host "      $appDir" -ForegroundColor White
-    Write-Host "   3. Cho Android Studio dong bo xong (khoang 1-2 phut)."
-    Write-Host "   4. Chon Menu 'Build' -> 'Build Bundle(s) / APK(s)' -> 'Build APK(s)'."
-    Write-Host "   5. File APK se xuat hien ngay de chep vao dien thoai."
+    Write-Host "   1. Mo Android Studio tu: $studioExe"
+    Write-Host "   2. Chon 'Open' -> Chon thu muc: $appDir"
+    Write-Host "   3. Cho dong bo xong -> Chon Menu 'Build' -> 'Build APK(s)'."
     Write-Host ""
     Write-Host " [CACH 2]: Cai dat nhanh Java JDK 17:" -ForegroundColor Cyan
     Write-Host "   - Tai bo cai JDK 17 tai: https://adoptium.net/temurin/releases/?version=17"
@@ -134,7 +194,7 @@ if (-not $jdkPath -or -not $sdkPath) {
 }
 
 # -----------------------------------------------------------------------------
-# 4. THUC THI BUILD FILE APK QUA GRADLE
+# 5. THUC THI BUILD FILE APK QUA GRADLE
 # -----------------------------------------------------------------------------
 Write-Host ""
 Write-Host "[3/4] Dang thuc thi dong goi ung dung..." -ForegroundColor Yellow

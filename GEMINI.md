@@ -57,6 +57,18 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-10 — Bổ sung tự động nhận diện Android Studio tại D:\Setup\Build_SDK_Mobile và hỗ trợ 1-click mở Android Studio cài đặt SDK
+- **Định làm:**
+  1. Trong `android-app/build-apk.ps1`:
+     - Bổ sung quét nhận diện Android Studio và Android SDK tại thư mục tuỳ chỉnh `D:\Setup\Build_SDK_Mobile` (quét `D:\Setup\Build_SDK_Mobile\Android\Android Studio`, `D:\Setup\Build_SDK_Mobile\Sdk`, `D:\Setup\Build_SDK_Mobile\Android\Sdk`).
+     - Khi phát hiện đã cài đặt Android Studio nhưng chưa hoàn tất tải SDK (do mới cài bộ cài IDE lần đầu chưa mở wizard): hiển thị thông báo rõ ràng kèm tuỳ chọn bấm phím `1` để tự động khởi chạy `studio64.exe` tải SDK về máy ngay.
+  2. Hướng dẫn chi tiết người dùng các bước hoàn tất tải Android SDK từ Android Studio.
+  3. Cập nhật `GEMINI.md`, commit và push lên GitHub `main`.
+- **Vì sao:** Người dùng đã cài Android Studio và Java JDK tại `D:\Setup\Build_SDK_Mobile`, Java đã nhận diện nhưng Android SDK chưa có do chưa mở Android Studio lần đầu để wizard tải thư viện SDK về máy.
+- **Kết quả:** Đã hoàn thành. Đã nâng cấp `android-app/build-apk.ps1` tự động nhận diện JDK và Android Studio tại `D:\Setup\Build_SDK_Mobile`. Hỗ trợ tự động mở `studio64.exe` để hoàn tất wizard tải SDK và tự động quét SDK để build APK ngay sau khi tải xong. Toàn bộ 38/38 unit tests PASS. Sẵn sàng commit và push.
+
+
+
 ### 2026-11-10 — Bổ sung file chạy build-apk.bat tại thư mục gốc và hoàn thiện script tự động hoá đóng gói APK
 - **Định làm:**
   1. Tạo file `build-apk.bat` ngay tại thư mục gốc dự án (`d:\LAPTRINH\Download_Video_Image\build-apk.bat`) để người dùng chỉ cần nhấp đúp 1-click là có thể kích hoạt tiến trình đóng gói file APK của ứng dụng Android.
