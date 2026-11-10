@@ -200,3 +200,4 @@ class BrowserActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
         const val EXTRA_URL = "extra_target_url"
     }
 }
+

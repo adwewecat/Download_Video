@@ -18,3 +18,4 @@ class DownloadApp : Application() {
         private const val TAG = "DownloadApp"
     }
 }
+

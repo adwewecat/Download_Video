@@ -121,3 +121,4 @@ def download_media(url, quality='compatible', referer=None, cookies=None, out_di
         ydl.download([url])
 
     return last_file['path']
+

@@ -11,6 +11,7 @@ build/
 android-app/build/
 android-app/app/build/
 android-app/dist/
+android-app/bin/
 local.properties
 *.apk
 *.aar

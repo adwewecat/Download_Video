@@ -10,3 +10,4 @@ data class Bookmark(
     val emoji: String = "🌐",
     val description: String = ""
 )
+

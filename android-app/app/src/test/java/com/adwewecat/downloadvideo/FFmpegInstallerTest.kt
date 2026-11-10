@@ -33,3 +33,4 @@ class FFmpegInstallerTest {
         testFile.delete()
     }
 }
+

@@ -40,3 +40,4 @@ class BookmarkAdapter(
 
     override fun getItemCount(): Int = items.size
 }
+

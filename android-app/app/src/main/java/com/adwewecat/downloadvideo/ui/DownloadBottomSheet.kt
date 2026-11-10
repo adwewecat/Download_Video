@@ -73,3 +73,4 @@ class DownloadBottomSheet : BottomSheetDialogFragment() {
         }
     }
 }
+

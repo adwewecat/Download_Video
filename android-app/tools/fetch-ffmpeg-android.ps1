@@ -1,4 +1,4 @@
-﻿#Requires -Version 5.1
+#Requires -Version 5.1
 <#
 .SYNOPSIS
     Tự động tải binary FFmpeg tĩnh (ARM64-v8a Linux/Android) và đưa vào thư mục assets của app.
@@ -47,3 +47,4 @@ finally {
         Remove-Item $tempAar -Force -ErrorAction SilentlyContinue
     }
 }
+

@@ -47,3 +47,4 @@ class DVIBridge(private val listener: DVIBridgeListener) {
         private const val TAG = "DVIBridge"
     }
 }
+

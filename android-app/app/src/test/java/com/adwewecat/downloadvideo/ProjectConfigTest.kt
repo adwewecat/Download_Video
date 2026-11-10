@@ -34,3 +34,4 @@ class ProjectConfigTest {
         assertTrue(supportedAbis.contains("armeabi-v7a"), "Bắt buộc hỗ trợ kiến trúc 32-bit (armeabi-v7a)")
     }
 }
+

@@ -57,6 +57,20 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-10 — Bổ sung file chạy build-apk.bat tại thư mục gốc và hoàn thiện script tự động hoá đóng gói APK
+- **Định làm:**
+  1. Tạo file `build-apk.bat` ngay tại thư mục gốc dự án (`d:\LAPTRINH\Download_Video_Image\build-apk.bat`) để người dùng chỉ cần nhấp đúp 1-click là có thể kích hoạt tiến trình đóng gói file APK của ứng dụng Android.
+  2. Xây dựng `android-app/build-apk.ps1` và hoàn thiện `android-app/build-apk.bat`:
+     - Tự động nhận diện JDK và Android SDK trên máy (quét qua các thư mục chuẩn của Android Studio / Java).
+     - Hỗ trợ tuỳ chọn tự động tải Portable OpenJDK 17 và Gradle nếu máy chưa cài đặt môi trường.
+     - Tự động gọi lệnh build APK, sao chép file đầu ra vào `android-app/dist/DownloadVideoImage.apk` và tự động mở Windows Explorer chọn sẵn file vừa tạo.
+  3. Cập nhật `.gitignore` loại trừ thư mục `android-app/bin/`.
+  4. Cập nhật `README.md`, `HUONG_DAN_CAI_DAT.txt`, `GEMINI.md`, commit và push lên GitHub `main`.
+- **Vì sao:** Người dùng yêu cầu file chạy `.bat` để build app trực tiếp mà không phải thao tác phức tạp.
+- **Kết quả:** Đã hoàn thành. Đã tạo `build-apk.bat` tại thư mục gốc và hoàn thiện `android-app/build-apk.ps1` cùng `android-app/build-apk.bat`. Script tự động kiểm tra JDK 17, Android SDK, Gradle, hỗ trợ gọi build tự động và đưa ra hướng dẫn rõ ràng từng bước. Toàn bộ 38/38 unit tests PASS. Sẵn sàng commit và push.
+
+
+
 ### 2026-11-10 — Triển khai ứng dụng Android Native (.apk) độc lập 100% (Tasks 1 - 8)
 - **Định làm:**
   1. Xây dựng cấu trúc dự án Android Native trong thư mục `android-app/` với Gradle Kotlin DSL, Chaquopy nhúng Python 3.10/3.11 chạy `yt-dlp` PyPI, hỗ trợ kiến trúc `arm64-v8a` và `armeabi-v7a`.

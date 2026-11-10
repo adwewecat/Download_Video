@@ -217,3 +217,4 @@
   - Hướng dẫn cài đặt file APK lên điện thoại qua Zalo / Google Drive / cáp USB.
 - [ ] **Step 3: Chạy toàn bộ test suite (Node tests & Android unit tests)**
 - [ ] **Step 4: Commit và git push lên GitHub main**
+
