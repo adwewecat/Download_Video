@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Download Video &amp; Image</string>
+    <string name="action_download">Tải về</string>
+    <string name="download_compatible">⬇ Tải MP4 Tương Thích</string>
+    <string name="download_compatible_desc">Định dạng MP4 H.264 + AAC, xem mượt trên mọi máy và mạng xã hội.</string>
+    <string name="download_best">🚀 Tải Nét Nhất (MAX 2K/4K)</string>
+    <string name="download_best_desc">Độ phân giải tối đa có sẵn từ nguồn (2K, 4K) cho hình ảnh sắc nét nhất.</string>
+    <string name="download_mp3">🎵 Tải Âm Thanh (MP3)</string>
+    <string name="download_mp3_desc">Trích xuất riêng file nhạc chất lượng cao 320kbps.</string>
+</resources>
