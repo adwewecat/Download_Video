@@ -173,6 +173,17 @@ test('Get-YtDlpArguments: tạo danh sách tham số chuẩn theo quality mp3', 
   assert.ok(res.a.includes('mp3'));
 });
 
+test('Get-YtDlpArguments: hỗ trợ truyền tham số Referer', () => {
+  const cmd = `
+    $a = Get-YtDlpArguments -Url 'https://cdn.com/output.m3u8' -OutDir 'D:\\Down' -Referer 'https://website.com/watch'
+    [PSCustomObject]@{ a = $a } | ConvertTo-Json -Compress
+  `;
+  const res = JSON.parse(ps(cmd));
+  assert.ok(res.a.includes('--referer'));
+  const idx = res.a.indexOf('--referer');
+  assert.equal(res.a[idx + 1], 'https://website.com/watch');
+});
+
 
 test('Get-ExtensionIdFromKey: khớp chính xác ID extension từ key manifest', () => {
   const manifest = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'extension', 'manifest.json'), 'utf8'));

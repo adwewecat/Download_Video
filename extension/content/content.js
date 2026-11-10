@@ -317,6 +317,82 @@
     bar.classList.remove('visible');
   }
 
+  // Lắng nghe sự kiện stream tìm được từ MAIN world probe
+  let inPageStreamUrl = null;
+  window.addEventListener('__dvi_stream_found', (e) => {
+    if (e.detail && e.detail.url) {
+      inPageStreamUrl = e.detail.url;
+    }
+  });
+
+  // Inject probe script vào MAIN world để đọc trực tiếp window.jwplayer hoặc window.__SRC
+  try {
+    const probe = document.createElement('script');
+    probe.textContent = `
+      (function() {
+        function emit(u) {
+          if (u && typeof u === 'string') {
+            window.dispatchEvent(new CustomEvent('__dvi_stream_found', { detail: { url: u } }));
+          }
+        }
+        function scan() {
+          try {
+            if (window.jwplayer && typeof window.jwplayer === 'function') {
+              const jw = window.jwplayer();
+              if (jw && jw.getPlaylist) {
+                const pl = jw.getPlaylist();
+                if (pl && pl[0] && pl[0].file) emit(pl[0].file);
+              }
+              if (jw && jw.on) {
+                jw.on('ready', function() {
+                  const pl = jw.getPlaylist();
+                  if (pl && pl[0] && pl[0].file) emit(pl[0].file);
+                });
+              }
+            }
+          } catch {}
+          try {
+            if (window.__SRC && window.__SRC[0] && window.__SRC[0].file) {
+              emit(window.__SRC[0].file);
+            }
+          } catch {}
+        }
+        scan();
+        setTimeout(scan, 800);
+        setTimeout(scan, 2500);
+      })();
+    `;
+    (document.head || document.documentElement).appendChild(probe);
+    probe.remove();
+  } catch {}
+
+  /**
+   * Quét Performance API để lấy các yêu cầu mạng .m3u8, .mpd, .vl, .mp4 mà player đã nạp qua AJAX / HLS.
+   */
+  function findDirectStreamFromPerformance() {
+    try {
+      if (!window.performance || typeof window.performance.getEntriesByType !== 'function') {
+        return null;
+      }
+      const entries = window.performance.getEntriesByType('resource') || [];
+      // 1. Ưu tiên manifest HLS / DASH (.m3u8, .mpd, .vl)
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const name = entries[i].name;
+        if (name && typeof name === 'string' && /\.(m3u8|mpd|vl)(\?|$)/i.test(name)) {
+          return name;
+        }
+      }
+      // 2. Kế tiếp tìm file video mp4 / webm
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const name = entries[i].name;
+        if (name && typeof name === 'string' && /\.(mp4|webm)(\?|$)/i.test(name)) {
+          return name;
+        }
+      }
+    } catch {}
+    return null;
+  }
+
   /**
    * Quét các thẻ <script> và nội dung trang để tìm link luồng stream trực tiếp (HLS/m3u8/vl).
    */
@@ -392,7 +468,7 @@
       }
       // Nếu video phát bằng blob URL (thường là HLS stream qua jwplayer/hls.js), tìm link manifest thực tế
       if (!url || url.startsWith('blob:')) {
-        const directStream = findDirectStreamInDocument();
+        const directStream = inPageStreamUrl || findDirectStreamFromPerformance() || findDirectStreamInDocument();
         if (directStream) {
           url = directStream;
         }
@@ -561,6 +637,7 @@
           {
             type: 'DVI_YTDLP',
             url: targetUrl,
+            referer: window.location.href,
             platform,
             quality,
             title: pageTitle

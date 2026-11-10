@@ -67,13 +67,14 @@ try {
 
   if ($action -eq 'download') {
     $url = [string]$message.url
+    $referer = if ($message.referer) { [string]$message.referer } else { "" }
     $quality = if ($message.quality) { [string]$message.quality } else { 'compatible' }
     $title = if ($message.title) { [string]$message.title } else { "" }
     $noPrompt = if ($message.noPrompt) { [bool]$message.noPrompt } else { $false }
 
-    # Tu dong phan giai cac link embed sang direct stream URL (HLS / m3u8 / vl) neu co
+    # Tu dong phan giai cac link embed hoac API sang direct stream URL (HLS / m3u8 / vl) neu co
     if ($url) {
-      $url = Resolve-StreamUrl -Url $url
+      $url = Resolve-StreamUrl -Url $url -Referer $referer
     }
 
     $binDir = Join-Path $ScriptDir "bin"
@@ -139,7 +140,7 @@ try {
     }
 
     try {
-      $argsList = Get-YtDlpArguments -Url $url -OutDir $outDir -CookieFile $cookieFile -Quality $quality -OutTemplate $outTemplate
+      $argsList = Get-YtDlpArguments -Url $url -OutDir $outDir -CookieFile $cookieFile -Quality $quality -OutTemplate $outTemplate -Referer $referer
       $argsString = Join-ProcessArguments -Arguments $argsList
 
       $psi = New-Object System.Diagnostics.ProcessStartInfo

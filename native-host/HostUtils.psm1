@@ -214,7 +214,10 @@ function Get-YtDlpArguments {
     [string]$Quality = 'compatible',
 
     [Parameter(Mandatory = $false)]
-    [string]$OutTemplate = '%(title).150B [%(id)s].%(ext)s'
+    [string]$OutTemplate = '%(title).150B [%(id)s].%(ext)s',
+
+    [Parameter(Mandatory = $false)]
+    [string]$Referer = ''
   )
 
   if ($Quality -eq 'mp3') {
@@ -255,8 +258,12 @@ function Get-YtDlpArguments {
     $argsList += @('--cookies', $CookieFile)
   }
 
-  if ($Url -match 'gooqlevideo\.com' -or $Url -match '\.vl(\?|$)') {
+  if ($Referer) {
+    $argsList += @('--referer', $Referer)
+  } elseif ($Url -match 'gooqlevideo\.com' -or $Url -match '\.vl(\?|$)') {
     $argsList += @('--referer', 'https://play.vlstream.net/')
+  } elseif ($Url -match 'domain115\.com') {
+    $argsList += @('--referer', 'https://sexgaiviet69.com/')
   }
 
   $argsList += @('--', $Url)
@@ -267,7 +274,10 @@ function Resolve-StreamUrl {
   [CmdletBinding()]
   param (
     [Parameter(Mandatory = $true)]
-    [string]$Url
+    [string]$Url,
+
+    [Parameter(Mandatory = $false)]
+    [string]$Referer = ''
   )
 
   # Neu da la link stream truc tiep thi giu nguyen
@@ -275,11 +285,41 @@ function Resolve-StreamUrl {
     return $Url
   }
 
-  # Xu ly cac link nhung embed nhu play.vlstream.net hoac cac trang embed
+  $ref = if ($Referer) { $Referer } else { $Url }
+
+  # 1. Xu ly cac trang video goi API lay link stream qua /api/player
+  if ($Url -match 'sexgaiviet' -or $Url -match 'clip-' -or $Url -match 'video') {
+    try {
+      $headers = @{
+        'User-Agent' = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+      $pageHtml = (Invoke-WebRequest -Uri $Url -UseBasicParsing -Headers $headers -TimeoutSec 6).Content
+      if ($pageHtml -match 'data-video-id="([0-9]+)"') {
+        $vidId = [int]$matches[1]
+        $uriObj = [System.Uri]$Url
+        $apiUrl = "$($uriObj.Scheme)://$($uriObj.Host)/api/player"
+        $apiHeaders = @{
+          'Referer' = $Url
+          'X-Requested-With' = 'XMLHttpRequest'
+          'User-Agent' = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        }
+        $body = @{ id = $vidId; server = 1 }
+        $apiResp = Invoke-RestMethod -Uri $apiUrl -Method Post -Body $body -Headers $apiHeaders -TimeoutSec 6
+        if ($apiResp.data.sources -and $apiResp.data.sources[0].file) {
+          return $apiResp.data.sources[0].file
+        }
+      }
+    } catch {
+      # Fallback neu gap loi API
+    }
+  }
+
+  # 2. Xu ly cac link nhung embed nhu play.vlstream.net hoac cac trang embed
   if ($Url -match 'play\.vlstream\.net/embed/' -or $Url -match '/embed/') {
     try {
       $wr = [System.Net.WebRequest]::Create($Url)
       $wr.UserAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      if ($ref) { $wr.Referer = $ref }
       $wr.Timeout = 6000
       $resp = $wr.GetResponse()
       $stream = $resp.GetResponseStream()

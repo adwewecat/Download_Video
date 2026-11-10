@@ -58,6 +58,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     startYtDlpJob({
       jobId,
       url: message.url,
+      referer: message.referer || (sender.tab ? sender.tab.url : ''),
       platform: message.platform,
       quality: message.quality || 'compatible',
       title: message.title || '',
@@ -176,7 +177,7 @@ function sendToTab(tabId, frameId, msg) {
 /**
  * Quản lý vòng đời của một tác vụ tải qua yt-dlp Native Host.
  */
-async function startYtDlpJob({ jobId, url, platform, quality, title, tabId, frameId }) {
+async function startYtDlpJob({ jobId, url, referer, platform, quality, title, tabId, frameId }) {
   updateBadge(1);
 
   let finished = false;
@@ -269,6 +270,7 @@ async function startYtDlpJob({ jobId, url, platform, quality, title, tabId, fram
     port.postMessage({
       action: 'download',
       url,
+      referer: referer || '',
       quality,
       title,
       cookies

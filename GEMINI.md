@@ -49,6 +49,21 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-10 — Sửa lỗi: Tải video từ các trang JWPlayer / AJAX API nạp HLS stream qua blob URL
+- **Định làm:**
+  1. Hỗ trợ bắt luồng video HLS m3u8 được nạp qua AJAX / API động (JWPlayer phát dưới dạng `blob:` URL):
+     - Trong `extension/content/content.js`: bổ sung hàm `findDirectStreamFromPerformance()` đọc API `performance.getEntriesByType('resource')` để trích xuất link `.m3u8` / `.mpd` / `.mp4` thực tế mà trình phát video vừa tải qua mạng.
+     - Inject probe script đọc trực tiếp từ `window.jwplayer` nếu có trong trang.
+     - Trong `extension/background.js`: truyền thêm `referer` khi gửi lệnh sang Native Host.
+  2. Trong `native-host/HostUtils.psm1` và `native-host/host.ps1`:
+     - Nâng cấp `Resolve-StreamUrl`: tự động phát hiện các trang có `data-video-id` gọi API `/api/player` để phân giải thành link `.m3u8` trực tiếp.
+     - Hỗ trợ tham số `-Referer` trong `Get-YtDlpArguments` và `host.ps1` để truyền `--referer` tương ứng khi gọi `yt-dlp`.
+  3. Viết unit test cho các luồng xử lý mới, chạy toàn bộ test suite.
+  4. Cập nhật `README.md`, `HUONG_DAN_CAI_DAT.txt`, `GEMINI.md`, commit và `git push origin main`.
+- **Vì sao:** Một số trang web xem video không nhúng link video trực tiếp trong HTML tĩnh mà gọi AJAX `/api/player` lấy link stream `output.m3u8`, sau đó JWPlayer phát video dưới dạng `blob:` URL. Khi đó `yt-dlp` nhận URL trang web thông thường và báo "Unsupported URL". Cần cơ chế tự động phân giải API và truyền referer hợp lệ.
+- **Kết quả:** Đã hoàn thành. Cả 2 tầng (content script qua Performance API và Native Host qua Resolve-StreamUrl + Referer) đều tự động nhận diện và phân giải link HLS stream thành công. Toàn bộ 33/33 tests PASS. Sẵn sàng commit và push.
+
+
 ### 2026-11-08 — Cập nhật: Thêm timestamp (yyyyMMddHHmmssfff) vào tên file video để chống trùng lặp
 - **Định làm:**
   1. Trong `native-host/HostUtils.psm1`: cập nhật hàm `Get-SanitizedFileName` hỗ trợ thêm tham số `-Timestamp` theo định dạng `yyyyMMddHHmmssfff` (VD: `20261108191301443`).
