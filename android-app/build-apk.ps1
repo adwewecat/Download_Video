@@ -103,21 +103,24 @@ if ($studioExe) {
 # Kiểm tra Android SDK
 $sdkPath = $null
 $potentialSdkDirs = @(
+    "D:\Setup\Build_SDK_Mobile\Android\Sdk",
+    "D:\Setup\Build_SDK_Mobile\Sdk",
+    "D:\Setup\Build_SDK_Mobile\android-sdk",
     $env:ANDROID_HOME,
     $env:ANDROID_SDK_ROOT,
-    "D:\Setup\Build_SDK_Mobile\Sdk",
-    "D:\Setup\Build_SDK_Mobile\Android\Sdk",
-    "D:\Setup\Build_SDK_Mobile\android-sdk",
+    (Join-Path $env:LOCALAPPDATA "Android\Sdk"),
     "D:\Android\Sdk",
     "C:\Android\Sdk",
-    (Join-Path $env:LOCALAPPDATA "Android\Sdk"),
     (Join-Path $binDir "android-sdk")
 )
 
 foreach ($dir in $potentialSdkDirs) {
-    if ($dir -and (Test-Path $dir) -and (Test-Path (Join-Path $dir "platform-tools") -or Test-Path (Join-Path $dir "platforms") -or Test-Path (Join-Path $dir "build-tools"))) {
-        $sdkPath = $dir
-        break
+    if ($dir -and (Test-Path $dir)) {
+        $hasTools = (Test-Path (Join-Path $dir "platform-tools")) -or (Test-Path (Join-Path $dir "platforms")) -or (Test-Path (Join-Path $dir "build-tools"))
+        if ($hasTools) {
+            $sdkPath = $dir
+            break
+        }
     }
 }
 

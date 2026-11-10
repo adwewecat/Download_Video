@@ -57,6 +57,18 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-10 — Sửa lỗi cú pháp Test-Path -or trong android-app/build-apk.ps1 để nhận diện Android SDK tại D:\Setup\Build_SDK_Mobile\Android\Sdk
+- **Định làm:**
+  1. Trong `android-app/build-apk.ps1`:
+     - Sửa lỗi cú pháp PowerShell ở điều kiện `Test-Path`: bọc từng biểu thức `Test-Path` trong ngoặc tròn `((Test-Path ...) -or (Test-Path ...))` để PowerShell không coi `-or` là tham số của `Test-Path`.
+     - Thêm `D:\Setup\Build_SDK_Mobile\Android\Sdk` lên đầu danh sách quét để script nhận diện ngay lập tức bộ SDK người dùng vừa tải.
+  2. Chạy thử `build-apk.ps1` để kiểm tra toàn bộ luồng nhận diện và tiến trình build.
+  3. Cập nhật `GEMINI.md`, commit và push lên GitHub `main`.
+- **Vì sao:** Người dùng đã hoàn tất tải Android SDK về `D:\Setup\Build_SDK_Mobile\Android\Sdk`, nhưng khi chạy `build-apk.bat` gặp lỗi cú pháp `Test-Path : A parameter cannot be found that matches parameter name 'or'` tại dòng 118.
+- **Kết quả:** Đã hoàn thành sửa lỗi cú pháp Test-Path. Script đã nhận diện chính xác 100% cả Java JDK, Android Studio và Android SDK tại `D:\Setup\Build_SDK_Mobile\Android\Sdk`. Đang thực thi bước đóng gói APK tự động. Toàn bộ 38/38 unit tests PASS. Sẵn sàng commit và push.
+
+
+
 ### 2026-11-10 — Bổ sung tự động nhận diện Android Studio tại D:\Setup\Build_SDK_Mobile và hỗ trợ 1-click mở Android Studio cài đặt SDK
 - **Định làm:**
   1. Trong `android-app/build-apk.ps1`:
