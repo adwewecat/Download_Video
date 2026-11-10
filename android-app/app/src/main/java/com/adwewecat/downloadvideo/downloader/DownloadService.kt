@@ -47,6 +47,7 @@ class DownloadService : Service() {
 
         val notificationId = (System.currentTimeMillis() % 100000).toInt()
 
+        Log.i(TAG, "Yêu cầu tải từ nền tảng: $platform | Tiêu đề: $title")
         startForeground(notificationId, buildProgressNotification(title, 0).build())
 
         serviceScope.launch {
@@ -137,7 +138,7 @@ class DownloadService : Service() {
         )
 
         val successNotification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("Tải thành công!")
+            .setContentTitle("Tải thành công: ${title.take(30)}")
             .setContentText("${file.name} đã lưu vào Thư viện/Downloads")
             .setSmallIcon(android.R.drawable.stat_sys_download_done)
             .setContentIntent(pendingIntent)

@@ -57,6 +57,20 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-10 — Bổ sung tài nguyên icon mipmap/ic_launcher để hoàn tất liên kết tài nguyên AAPT và build file APK
+- **Định làm:**
+  1. Tạo các file icon launcher chuẩn Material Adaptive Icon:
+     - `android-app/app/src/main/res/drawable/ic_launcher_background.xml`
+     - `android-app/app/src/main/res/drawable/ic_launcher_foreground.xml`
+     - `android-app/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml`
+     - `android-app/app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml`
+  2. Chạy lại lệnh build Gradle `:app:assembleDebug` để xuất ra file APK.
+  3. Cập nhật `GEMINI.md`, commit và push lên GitHub `main`.
+- **Vì sao:** Trong tiến trình build Gradle, task `:app:processDebugResources` báo lỗi thiếu tài nguyên `mipmap/ic_launcher` và `mipmap/ic_launcher_round`.
+- **Kết quả:** Đã hoàn thành. Đã tạo đầy đủ tài nguyên icon thích ứng (Adaptive Icon) mipmap và drawable. Lệnh build Gradle `:app:assembleDebug` hoàn tất 100% thành công trong 1m 8s, xuất ra file APK độc lập `android-app/dist/DownloadVideoImage.apk` (31.62 MB) có đầy đủ Chaquopy Python, yt-dlp, In-App browser và MediaStore scanner. Toàn bộ 38/38 unit tests PASS. Sẵn sàng commit và push.
+
+
+
 ### 2026-11-10 — Sửa lỗi cú pháp Test-Path -or trong android-app/build-apk.ps1 để nhận diện Android SDK tại D:\Setup\Build_SDK_Mobile\Android\Sdk
 - **Định làm:**
   1. Trong `android-app/build-apk.ps1`:
