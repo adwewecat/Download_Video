@@ -13,6 +13,7 @@ Các tính năng chính:
   - Hộp thoại Save As: Chọn thư mục lưu (ổ D:, Desktop,...) và đổi tên trước khi tải.
   - Thông báo hoàn tất: Tích hợp nút "📂 Mở thư mục" để bôi đen sẵn file vừa tải.
   - Gợi ý cài VLC miễn phí nếu video 2K/4K dùng chuẩn mới (AV1/VP9).
+  - PHIÊN BẢN MOBILE ANDROID (.APK): Hoạt động độc lập 100% trong điện thoại, tích hợp trình duyệt nhúng duyệt mạng xã hội và tải video/ảnh/âm thanh thẳng vào Bộ sưu tập máy.
 
 Repository GitHub: https://github.com/adwewecat/Download_Video.git
 
@@ -107,6 +108,22 @@ Mỗi khi bạn kéo code mới từ GitHub về hoặc chỉnh sửa tính năn
 3. Rê chuột không thấy nút nổi hiện lên:
    -> Bấm phím F5 để tải lại trang web (đặc biệt khi vừa cài đặt hoặc bật lại extension).
    -> Đảm bảo hình ảnh/video có kích thước lớn hơn 60x60 pixel.
+
+================================================================================
+           HƯỚNG DẪN CÀI ĐẶT ỨNG DỤNG ANDROID MOBILE NATIVE (.APK)
+================================================================================
+
+Ứng dụng Android chạy 100% độc lập trong điện thoại (không cần máy chủ, không phụ thuộc bên ngoài):
+1. ĐÓNG GÓI FILE .APK:
+   - Cách 1: Vào thư mục android-app và chạy file build-apk.bat.
+   - Cách 2: Mở Android Studio -> Chọn Open -> Chọn thư mục android-app -> Chờ đồng bộ -> Chọn Menu Build > Build Bundle(s) / APK(s) > Build APK(s).
+2. CÀI ĐẶT VÀO ĐIỆN THOẠI:
+   - Gửi file .apk vào điện thoại qua Zalo (gửi dạng File), Google Drive, hoặc cắm cáp USB chép trực tiếp vào máy.
+   - Trên điện thoại, nhấp vào file .apk và chọn Cài đặt (nếu máy hỏi quyền 'Cài đặt ứng dụng không rõ nguồn gốc', chọn Cho phép).
+3. SỬ DỤNG TRÊN ĐIỆN THOẠI:
+   - Mở ứng dụng 'Download Video', chọn icon YouTube, Facebook, TikTok, Instagram hoặc dán link bất kỳ.
+   - Khi video phát, nút nổi cảm ứng [⬇ Tải về] sẽ xuất hiện trên video và nút FAB ở góc dưới màn hình sẽ sáng lên.
+   - Chọn [⬇ Tải tương thích], [MAX 2K/4K] hoặc [MP3]. Video sẽ tải ngầm và xuất hiện ngay trong Thư viện ảnh / Bộ sưu tập của điện thoại.
 
 ================================================================================
                        BẢN QUYỀN & MÃ NGUỒN MỞ DỰ ÁN

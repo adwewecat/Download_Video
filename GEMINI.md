@@ -28,26 +28,47 @@
 
 ## 3. Trạng thái hiện tại
 
-- **Giai đoạn:** **v1.0.0 Hoàn Thành & Sẵn Sàng Sử Dụng**.
+- **Giai đoạn:** **v2.0.0 Hoàn Thành (Chrome Extension + Android Native App .apk)**.
 - **Đã có:**
-  - Tiện ích Chrome Extension Manifest V3 (`extension/`) với Shadow DOM không vỡ layout, phát hiện đa tầng media, hỗ trợ tải trực tiếp và tải nền tảng.
-  - Native Messaging Host (`native-host/`) bằng PowerShell thuần, tự động hoá hoàn toàn qua `setup.bat` (tải yt-dlp, ffmpeg, Deno, sinh manifest, đăng ký Registry HKCU).
-  - Hỗ trợ 2 nút tải video: **⬇** (tương thích cao H.264+AAC) và **MAX** (2K/4K AV1/VP9).
-  - Tự động gợi ý và cung cấp nút mở trang tải VLC khi hoàn tất video 2K/4K chuẩn mới.
-  - Test suite tự động 26/26 tests PASS (`node --test "tests/*.test.js"`).
-  - Trang thử tay `tests/manual/test-page.html` đầy đủ 9 tình huống media.
+  - **Chrome Extension Manifest V3 (`extension/`)**: Shadow DOM không vỡ layout, phát hiện đa tầng media, hỗ trợ tải trực tiếp và tải nền tảng (YouTube, FB, TikTok, Insta, X, Threads, HLS stream,...), lưu folder đã chọn, phím Shift tải nhanh 1-click.
+  - **Native Messaging Host (`native-host/`)**: PowerShell thuần, tự động hoá hoàn toàn qua `setup.bat` (tải yt-dlp, ffmpeg, Deno, sinh manifest, đăng ký Registry HKCU).
+  - **Ứng dụng Android Native 100% độc lập (`android-app/`)**: Trình duyệt nhúng WebView, phát hiện media qua `dvi_mobile_content.js` & `DVIBridge`, nhúng Python qua Chaquopy chạy `yt-dlp` PyPI, binary FFmpeg tĩnh ARM64 muxing 2K/4K và MP3, Background Foreground Service kèm tiến độ %, lưu file an toàn vào `Downloads/Download_Video/` và quét MediaStore vào Gallery.
+  - Test suite tự động 38/38 tests PASS (`node --test "tests/*.test.js"`).
+  - Kịch bản đóng gói 1-click `android-app/build-apk.bat`.
 
 ---
 
 ## 4. Việc tiếp theo
 
-- [x] Hoàn thành và bàn giao v1.0.0.
+- [x] Hoàn thành và bàn giao v1.0.0 (Chrome Extension).
 - [x] Bổ sung tuỳ chọn tải riêng âm thanh MP3 (v1.2.0).
-- [ ] *(Ý tưởng v2)*: Hỗ trợ tải nguyên danh sách phát (Playlist / Kênh) nếu người dùng có nhu cầu.
+- [x] **Triển khai ứng dụng Android Native (.apk) độc lập 100% trong máy (v2.0.0):**
+  - [x] Task 1: Khởi tạo cấu trúc dự án Android Gradle với Chaquopy & Dependencies.
+  - [x] Task 2: Module Python trích xuất luồng `downloader.py` (Chaquopy + yt-dlp) & `YtDlpDownloader.kt`.
+  - [x] Task 3: Trình giải nén & cài đặt Binary FFmpeg tĩnh (`FFmpegInstaller`) & `fetch-ffmpeg-android.ps1`.
+  - [x] Task 4: Script phát hiện media di động (`dvi_mobile_content.js`) & Cầu nối `DVIBridge` & `tests/mobile-bridge.test.js`.
+  - [x] Task 5: Giao diện Trình duyệt `BrowserActivity` & Bottom Sheet Tải (`bottom_sheet_download.xml`).
+  - [x] Task 6: Dịch vụ tải ngầm (`DownloadService`), Đồng bộ Cookie (`CookieUtils.kt`) & MediaStore (`StorageUtils.kt`).
+  - [x] Task 7: Màn hình chính Dashboard (`MainActivity`) & Danh bạ Bookmarks (`BookmarkAdapter.kt`).
+  - [x] Task 8: Script tự động hoá đóng gói APK (`build-apk.bat`) & Tài liệu hướng dẫn.
+- [ ] *(Ý tưởng tương lai)*: Thêm tuỳ chọn tải phụ đề rời (.srt) hoặc tải danh sách phát (Playlist).
 
 ---
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
+
+### 2026-11-10 — Triển khai ứng dụng Android Native (.apk) độc lập 100% (Tasks 1 - 8)
+- **Định làm:**
+  1. Xây dựng cấu trúc dự án Android Native trong thư mục `android-app/` với Gradle Kotlin DSL, Chaquopy nhúng Python 3.10/3.11 chạy `yt-dlp` PyPI, hỗ trợ kiến trúc `arm64-v8a` và `armeabi-v7a`.
+  2. Xây dựng module Python `downloader.py` và wrapper `YtDlpDownloader.kt` thực thi trực tiếp quá trình trích xuất luồng và tải video cục bộ trên máy mà không phụ thuộc máy chủ bên ngoài.
+  3. Cài đặt binary `ffmpeg` tĩnh (ARM64) cho Android để xử lý muxing chất lượng cao (2K/4K) và trích xuất file âm thanh MP3 trực tiếp trên điện thoại (`FFmpegInstaller.kt`, `fetch-ffmpeg-android.ps1`).
+  4. Xây dựng `dvi_mobile_content.js` kế thừa từ `content.js` và `media-utils.js`, bắt đa tầng media trên màn hình cảm ứng, kết hợp Native Bottom Sheet và FAB nút tải nổi (`DVIBridge.kt`, `tests/mobile-bridge.test.js`).
+  5. Xây dựng `BrowserActivity.kt`, `MainActivity.kt` (Dashboard danh bạ web/mạng xã hội), `DownloadService.kt` (tải ngầm trong nền, lưu vào Thư mục Tải về & Thư viện ảnh điện thoại qua MediaStore).
+  6. Viết script `build-apk.bat` đóng gói file `.apk` 1-click và cập nhật toàn bộ tài liệu hướng dẫn (`README.md`, `HUONG_DAN_CAI_DAT.txt`, `GEMINI.md`).
+- **Vì sao:** Người dùng mong muốn có ứng dụng di động cài đặt trực tiếp vào điện thoại Android (.apk), hoạt động độc lập 100% không cần máy chủ riêng, mở app ra là có sẵn các trang web/mạng xã hội để lướt và tải video/ảnh/âm thanh trực tiếp về điện thoại với các nút tải quen thuộc (⬇, MAX, MP3).
+- **Kết quả:** Đã hoàn thành toàn bộ 8 Task theo đúng kế hoạch kỹ thuật. Mã nguồn ứng dụng Android sạch sẽ, đầy đủ chú thích tiếng Việt, hỗ trợ cả 3 nút tải (⬇ Tương thích, MAX 2K/4K, MP3), lưu trữ file an toàn và quét MediaStore vào Gallery. Toàn bộ 38/38 unit tests PASS. Sẵn sàng commit và push lên GitHub main.
+
+
 
 ### 2026-11-10 — Thêm tính năng: Ghi nhớ thư mục lưu video đã chọn và hỗ trợ tải nhanh
 - **Định làm:**

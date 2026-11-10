@@ -5,6 +5,20 @@ native-host/com.adwewecat.download_video.json
 # Scratch and plan tracking
 .superpowers/
 
+# Android build outputs & IDE
+.gradle/
+build/
+android-app/build/
+android-app/app/build/
+android-app/dist/
+local.properties
+*.apk
+*.aar
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
 # Node / dependencies
 node_modules/
 

@@ -95,7 +95,23 @@ Bao gồm:
 
 ---
 
-## 5. Cấu trúc thư mục
+## 5. Phiên bản Ứng dụng Mobile Android Native (.apk)
+
+Dự án cung cấp ứng dụng Android Native hoạt động **độc lập 100% trong máy điện thoại** (không cần máy chủ, không phụ thuộc bên ngoài):
+- **Trình duyệt nhúng đa năng:** Mở app ra là có sẵn danh bạ mở nhanh YouTube, Facebook, TikTok, Instagram, X (Twitter), Threads, Google, trang phim/stream hoặc dán bất kỳ link web nào.
+- **Phát hiện media tự động:** Khi video phát, nút nổi cảm ứng **⬇ Tải về** sẽ hiện ngay trên video và nút **FAB nổi ở góc màn hình** sáng lên kèm số lượng media phát hiện.
+- **Tải độc lập qua yt-dlp & FFmpeg nội bộ:**
+  - Nhúng Python 3 qua Chaquopy chạy trực tiếp `yt-dlp` trên chip điện thoại (ARM64-v8a / armeabi-v7a).
+  - Tích hợp binary `ffmpeg` tĩnh để muxing video 2K/4K và trích xuất file âm thanh MP3 (320kbps).
+  - Đồng bộ Cookie từ WebView để tải cả video riêng tư, Reels cá nhân đã đăng nhập.
+  - Tự động lưu vào thư mục `Downloads/Download_Video/` và kích hoạt `MediaScannerConnection` để video/ảnh/nhạc xuất hiện ngay trong Thư viện ảnh / Google Photos / Trình phát nhạc của điện thoại.
+- **Đóng gói file .apk:**
+  - Chạy file `android-app/build-apk.bat` hoặc mở thư mục `android-app` bằng Android Studio và chọn **Build > Build APK(s)**.
+  - File `.apk` tạo ra có thể gửi qua Zalo, Drive hoặc chép qua cáp USB vào điện thoại để cài đặt và sử dụng ngay lập tức.
+
+---
+
+## 6. Cấu trúc thư mục
 
 ```
 Download_Video_Image/
@@ -103,6 +119,22 @@ Download_Video_Image/
 ├── README.md                  # Tài liệu hướng dẫn sử dụng và cài đặt
 ├── HUONG_DAN_CAI_DAT.txt      # Hướng dẫn cài đặt nhanh dạng văn bản thuần
 ├── .gitignore                 # Loại trừ file nhị phân bin/ và manifest local
+├── android-app/               # ỨNG DỤNG MOBILE ANDROID NATIVE (.APK)
+│   ├── build.gradle.kts       # Cấu hình Gradle dự án
+│   ├── settings.gradle.kts    # Quản lý module và kho Maven (Chaquopy)
+│   ├── build-apk.bat          # Script 1-click đóng gói file .apk
+│   ├── app/
+│   │   ├── build.gradle.kts   # Cấu hình Chaquopy, yt-dlp pip, ABI filters
+│   │   └── src/
+│   │       ├── main/
+│   │       │   ├── AndroidManifest.xml   # Quyền mạng, foreground service, FileProvider
+│   │       │   ├── java/...              # MainActivity, BrowserActivity, DownloadService, DVIBridge
+│   │       │   ├── python/downloader.py  # Module Python yt-dlp cục bộ
+│   │       │   ├── assets/               # Kịch bản phát hiện media di động dvi_mobile_content.js
+│   │       │   └── res/                  # Giao diện XML Dashboard, Browser, Bottom Sheet
+│   │       └── test/...                  # Unit tests Kotlin kiểm tra cấu hình & storage
+│   └── tools/
+│       └── fetch-ffmpeg-android.ps1      # Tự động tải binary FFmpeg ARM64 cho Android
 ├── extension/                 # Thư mục Chrome Extension (Load unpacked)
 │   ├── manifest.json          # Manifest V3 (ID extension cố định)
 │   ├── background.js          # Service worker (tải trực tiếp & điều phối yt-dlp)
