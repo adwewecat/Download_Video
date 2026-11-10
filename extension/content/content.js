@@ -531,9 +531,21 @@
    */
   function collectLevels(element) {
     const levels = [];
+    if (!element) return levels;
+
+    // Tìm container bài viết gần nhất (article, [role="article"], ...)
+    const postContainer = element.closest ? (
+      element.closest('article') ||
+      element.closest('[role="article"]') ||
+      element.closest('[data-pagelet*="FeedUnit"]') ||
+      element.closest('[data-e2e="feed-item"]') ||
+      element.closest('div[role="presentation"]')
+    ) : null;
+
     let cur = element;
     let count = 0;
-    while (cur && cur !== document.body && cur !== document.documentElement && count < 12) {
+    const maxDepth = postContainer ? 50 : 35;
+    while (cur && cur !== document.body && cur !== document.documentElement && count < maxDepth) {
       const anchors = cur.querySelectorAll ? cur.querySelectorAll('a[href]') : [];
       const hrefs = [];
       for (let i = 0; i < anchors.length; i++) {
@@ -545,10 +557,67 @@
       if (hrefs.length > 0) {
         levels.push(hrefs);
       }
+      // Dừng lại khi đã thu thập xong cấp postContainer để tránh lan sang các bài viết khác trên feed
+      if (postContainer && cur === postContainer) {
+        break;
+      }
       cur = cur.parentElement;
       count++;
     }
     return levels;
+  }
+
+  /**
+   * Quét tìm permalink bài viết trong container cha gần nhất (hỗ trợ bảng tin / feed trên mạng xã hội).
+   */
+  function findPostPermalink(platform, element) {
+    if (!platform || !element) return null;
+
+    const postContainer = element.closest ? (
+      element.closest('article') ||
+      element.closest('[role="article"]') ||
+      element.closest('[data-pagelet*="FeedUnit"]') ||
+      element.closest('[data-e2e="feed-item"]') ||
+      element.closest('div[role="presentation"]')
+    ) : null;
+
+    const searchRoots = [];
+    if (postContainer) searchRoots.push(postContainer);
+
+    let cur = element;
+    let depth = 0;
+    while (cur && cur !== document.body && cur !== document.documentElement && depth < 35) {
+      if (!searchRoots.includes(cur)) {
+        searchRoots.push(cur);
+      }
+      cur = cur.parentElement;
+      depth++;
+    }
+
+    for (const root of searchRoots) {
+      const anchors = root.querySelectorAll ? root.querySelectorAll('a[href]') : [];
+      const foundPermalinks = new Set();
+      for (let i = 0; i < anchors.length; i++) {
+        try {
+          const href = anchors[i].href;
+          const normalized = U.normalizePermalink(platform, href);
+          if (normalized) {
+            foundPermalinks.add(normalized);
+          }
+        } catch {}
+      }
+      if (foundPermalinks.size === 1) {
+        return Array.from(foundPermalinks)[0];
+      }
+      if (foundPermalinks.size > 1) {
+        const list = Array.from(foundPermalinks);
+        const reelLink = list.find((u) => u.includes('/reel/'));
+        if (reelLink) return reelLink;
+        return list[0];
+      }
+    }
+
+    return null;
   }
 
   /**
@@ -624,6 +693,24 @@
         } else {
           const levels = collectLevels(element);
           targetUrl = platform ? U.choosePermalink(platform, levels, window.location.href) : window.location.href;
+
+          // Nếu trên mạng xã hội mà chưa lấy được permalink bài viết (vẫn là URL feed/homepage):
+          // Quét bổ sung trong container bài viết gần nhất
+          if (platform && !U.isPermalink(platform, targetUrl)) {
+            const fallbackPermalink = findPostPermalink(platform, element);
+            if (fallbackPermalink) {
+              targetUrl = fallbackPermalink;
+            } else if (url && typeof url === 'string' && /^https?:\/\//i.test(url) && !url.startsWith('blob:')) {
+              // Dự phòng: dùng link media trực tiếp nếu có
+              targetUrl = url;
+            }
+          }
+        }
+
+        // Chặn gửi URL trang chủ / bảng tin chung chung sang yt-dlp vì chắc chắn sẽ bị lỗi Unsupported URL
+        if (platform && !U.isPermalink(platform, targetUrl) && !/^https?:\/\/.*(fbcdn|cdninstagram|googlevideo|tiktokcdn)/i.test(targetUrl)) {
+          setButtonState(element, 'error', 'Không tìm thấy link bài viết — hãy nhấp mở bài viết để tải');
+          return;
         }
 
         let pageTitle = document.title || '';

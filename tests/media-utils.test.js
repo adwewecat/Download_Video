@@ -150,6 +150,10 @@ test('normalizePermalink: chuẩn hoá permalink về dạng canonical', () => {
     'https://www.instagram.com/reel/DA9l_HlsHha/'
   );
   assert.equal(
+    U.normalizePermalink('instagram', 'https://www.instagram.com/p/DfgTefoM-Iv/'),
+    'https://www.instagram.com/reel/DfgTefoM-Iv/'
+  );
+  assert.equal(
     U.normalizePermalink('instagram', 'https://www.instagram.com/stories/username/12345/'),
     'https://www.instagram.com/stories/username/12345/'
   );
@@ -164,6 +168,13 @@ test('choosePermalink: chọn permalink duy nhất từ các tầng tổ tiên',
   assert.equal(U.choosePermalink('x', [[], [a, b]], page), page);
   assert.equal(U.choosePermalink('x', [[a, b], [a]], page), page);
   assert.equal(U.choosePermalink('x', [], page), page);
+
+  // Trường hợp Instagram trên bảng tin (feed) chứa cả link /p/ và /reel/ cùng ID
+  const igHome = 'https://www.instagram.com/';
+  const igP = 'https://www.instagram.com/p/DfgTefoM-Iv/';
+  const igReel = 'https://www.instagram.com/reel/DfgTefoM-Iv/';
+  const igUser = 'https://www.instagram.com/hongthienlkhoa/';
+  assert.equal(U.choosePermalink('instagram', [[], [igUser, igP, igReel]], igHome), igReel);
 });
 
 test('chooseRoute: quyết định đường tải direct / blob-image / ytdlp / none', () => {

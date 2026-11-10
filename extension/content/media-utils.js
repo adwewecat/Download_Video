@@ -254,8 +254,8 @@
         }
         const match = /^\/(p|reel|reels)\/([^/?#]+)/.exec(path);
         if (match) {
-          const kind = match[1] === 'reels' ? 'reel' : match[1];
-          return `${origin}/${kind}/${match[2]}/`;
+          // Chuẩn hoá cả /p/, /reel/ và /reels/ về định dạng /reel/<id>/ để yt-dlp trích xuất tối ưu
+          return `${origin}/reel/${match[2]}/`;
         }
         return null;
       }
@@ -345,6 +345,22 @@
         return Array.from(canonicalSet)[0];
       }
       if (canonicalSet.size > 1) {
+        // Kiểm tra xem tất cả các permalink có cùng trỏ về 1 ID bài viết hay không (ví dụ /p/ID và /reel/ID)
+        const idSet = new Set();
+        let sampleUrl = null;
+        for (const item of canonicalSet) {
+          const m = /\/(?:reel|reels|p|status|video|post)\/([^/?#]+)/i.exec(item);
+          if (m) {
+            idSet.add(m[1]);
+            // Ưu tiên /reel/ hơn nếu có
+            if (!sampleUrl || item.includes('/reel/')) {
+              sampleUrl = item;
+            }
+          }
+        }
+        if (idSet.size === 1 && sampleUrl) {
+          return sampleUrl;
+        }
         return pageUrl;
       }
     }

@@ -49,6 +49,21 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-10 — Sửa lỗi: Tải video Instagram Reel ngay trên bảng tin (feed/home) bị lỗi Unsupported URL
+- **Định làm:**
+  1. Trong `extension/content/media-utils.js`:
+     - Cập nhật `normalizePermalink`: chuẩn hoá cả `/p/<id>`, `/reel/<id>` và `/reels/<id>` về định dạng canonical `https://www.instagram.com/reel/<id>/`.
+     - Cập nhật `choosePermalink`: khi một cấp chứa nhiều link nhưng cùng trỏ về một post ID (như vừa có link timestamp `/reel/ID/` vừa có link chia sẻ `/p/ID/`), nhận diện chúng là cùng một bài viết và trích xuất đúng permalink thay vì trả về `pageUrl`.
+  2. Trong `extension/content/content.js`:
+     - Mở rộng độ sâu quét `collectLevels` từ 12 lên tối đa 50 cấp thẻ cha, tự động nhận diện container bài viết gần nhất (`article`, `[role="article"]`, `[data-pagelet*="FeedUnit"]`, `[data-e2e="feed-item"]`) và dừng lại tại cấp container để không bị lẫn link từ bài viết khác trên feed.
+     - Thêm hàm `findPostPermalink` quét dự phòng trực tiếp trong container bài viết nếu `choosePermalink` chưa tìm được permalink.
+     - Chặn gửi URL trang chủ/bảng tin (`https://www.instagram.com/`) sang `yt-dlp` khi chưa tìm được ID bài viết cụ thể, hiển thị thông báo rõ ràng trên nút.
+  3. Viết unit test cho các tình huống permalink trên feed trong `tests/media-utils.test.js`, chạy toàn bộ test suite.
+  4. Cập nhật `README.md`, commit và `git push origin main`.
+- **Vì sao:** Người dùng tải video Instagram khi mở trực tiếp link `/reels/DfgTefoM-Iv/` thì thành công, nhưng khi lướt trên bảng tin `https://www.instagram.com/` bấm tải thì bị lỗi "Unsupported URL: https://www.instagram.com/". Nguyên nhân là do cấu trúc DOM của React trên Instagram feed lồng nhau hơn 15 tầng div, hàm `collectLevels` chỉ quét 12 tầng nên không tới được thẻ `<article>` chứa link bài viết, đồng thời bài viết chứa cả link `/p/` và `/reel/` khiến `choosePermalink` xem là 2 link khác nhau và trả về URL trang chủ `https://www.instagram.com/`.
+- **Kết quả:** Đã hoàn thành. Đã mở rộng độ sâu quét lên tối đa 50 tầng đến container bài viết (`article`), chuẩn hoá thống nhất link Instagram về dạng canonical `/reel/<id>/`, hỗ trợ `choosePermalink` nhận diện các URL cùng trỏ về 1 ID bài viết, và bổ sung hàm quét `findPostPermalink` trực tiếp trong container bài viết. Toàn bộ 33/33 tests PASS. Sẵn sàng commit và push.
+
+
 ### 2026-11-10 — Sửa lỗi: Tải video từ các trang JWPlayer / AJAX API nạp HLS stream qua blob URL
 - **Định làm:**
   1. Hỗ trợ bắt luồng video HLS m3u8 được nạp qua AJAX / API động (JWPlayer phát dưới dạng `blob:` URL):
