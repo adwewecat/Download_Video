@@ -57,7 +57,8 @@
                 android:layout_weight="1"
                 android:text="Tìm kiếm hoặc nhập URL"
                 android:textColor="@color/text_primary"
-                android:textSize="14sp"
+                android:textSize="14.5sp"
+                android:fontFamily="sans-serif-medium"
                 android:maxLines="1"
                 android:ellipsize="end" />
         </LinearLayout>

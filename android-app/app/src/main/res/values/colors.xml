@@ -5,17 +5,18 @@
     <color name="primary_light">#38BDF8</color>
     <color name="accent_max">#9333EA</color>
     <color name="accent_mp3">#0D9488</color>
-    <color name="surface_dark">#0F172A</color>
-    <color name="surface_card">#1E293B</color>
-    <color name="text_primary">#F8FAFC</color>
-    <color name="text_secondary">#94A3B8</color>
-    <color name="border_light">#334155</color>
+    <color name="surface_dark">#0B1120</color>
+    <color name="surface_card">#131B2E</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#CBD5E1</color>
+    <color name="border_light">#2A3447</color>
     
     <!-- Chrome-Style Colors -->
-    <color name="chrome_bg">#0F172A</color>
-    <color name="chrome_surface">#1E293B</color>
-    <color name="chrome_pill">#253248</color>
-    <color name="chrome_pill_border">#334155</color>
+    <color name="chrome_bg">#0B1120</color>
+    <color name="chrome_surface">#131B2E</color>
+    <color name="chrome_pill">#182030</color>
+    <color name="chrome_pill_border">#2A3447</color>
+    <color name="fab_bg_translucent">#E6182030</color>
     <color name="google_blue">#4285F4</color>
     <color name="google_red">#EA4335</color>
     <color name="google_yellow">#FBBC05</color>

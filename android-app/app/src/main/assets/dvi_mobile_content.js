@@ -108,18 +108,18 @@
       z-index: 2147483647 !important;
       display: flex !important;
       align-items: center !important;
-      gap: 5px !important;
-      background: rgba(15, 23, 42, 0.92) !important;
-      backdrop-filter: blur(8px) !important;
-      -webkit-backdrop-filter: blur(8px) !important;
+      gap: 4px !important;
+      background: rgba(11, 17, 32, 0.72) !important;
+      backdrop-filter: blur(6px) !important;
+      -webkit-backdrop-filter: blur(6px) !important;
       color: #ffffff !important;
-      padding: 6px 12px !important;
-      border-radius: 20px !important;
+      padding: 4px 10px !important;
+      border-radius: 16px !important;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-      font-size: 13px !important;
-      font-weight: bold !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
-      border: 1.5px solid #38bdf8 !important;
+      font-size: 11.5px !important;
+      font-weight: 600 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4) !important;
+      border: 1px solid rgba(56, 189, 248, 0.35) !important;
       cursor: pointer !important;
       user-select: none !important;
       -webkit-user-select: none !important;
@@ -128,8 +128,8 @@
       transition: transform 0.1s ease !important;
     `;
     badge.innerHTML = `
-      <span style="color: #38bdf8; font-size: 15px; font-weight: bold;">⬇</span>
-      <span style="color: #f8fafc; font-size: 12px; font-weight: 600;">${mediaInfo.type === 'image' ? 'Tải ảnh' : 'Tải video'}</span>
+      <span style="color: #38bdf8; font-size: 13px; font-weight: bold; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">⬇</span>
+      <span style="color: #ffffff; font-size: 11.5px; font-weight: 600; text-shadow: 0 1px 2px rgba(0,0,0,0.8);">${mediaInfo.type === 'image' ? 'Tải ảnh' : 'Tải video'}</span>
     `;
 
     function updateBadgePosition() {
@@ -145,7 +145,7 @@
       }
       badge.style.display = 'flex';
       const badgeTop = Math.max(8, rect.top + 8);
-      const badgeLeft = Math.max(8, rect.right - 96);
+      const badgeLeft = Math.max(8, rect.right - 88);
       badge.style.top = badgeTop + 'px';
       badge.style.left = badgeLeft + 'px';
     }
@@ -288,7 +288,7 @@
         } else {
           badge.style.display = 'flex';
           const badgeTop = Math.max(8, rect.top + 8);
-          const badgeLeft = Math.max(8, rect.right - 96);
+          const badgeLeft = Math.max(8, rect.right - 88);
           badge.style.top = badgeTop + 'px';
           badge.style.left = badgeLeft + 'px';
         }

@@ -71,6 +71,28 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-11 — Cải tiến giao diện: Giảm độ nổi của background, chống che khuất chữ và tăng độ rõ nét của chữ
+- **Định làm:**
+  1. Trong `dvi_mobile_content.js`:
+     - Tinh chỉnh nút nổi cảm ứng trên trang web: chuyển từ dạng hộp đậm (`rgba(15,23,42,0.92)` kèm viền neon) sang thiết kế bán trong suốt siêu mượt (`rgba(0,0,0,0.65)` kèm viền mỏng tinh tế `rgba(255,255,255,0.3)` và text shadow), kích thước nhỏ gọn không che phụ đề hay tiêu đề.
+     - Không gắn nút nổi đè lên toàn bộ ảnh tĩnh `<img>` trên trang web để tránh che khuất văn bản bài viết; việc tải ảnh được điều phối qua nút Tải trên Toolbar.
+  2. Trong `activity_main.xml`:
+     - Chuyển nút FAB `fabDownload` từ khối chữ nhật đặc màu xanh nổi trội sang dạng capsule bo tròn bán trong suốt (`#D91E293B`) với viền mỏng `#475569`, chữ trắng tinh khiết `#FFFFFF` kèm shadow nhẹ để chữ rõ nét mà background chìm xuống êm dịu, không che khuất nội dung trang web.
+  3. Trong `colors.xml`, `bg_chrome_omnibox.xml`, `view_chrome_toolbar.xml`:
+     - Giảm độ sáng của hộp Omnibox từ màu xanh xám `#253248` sang tone màu tối trầm `#182030` tạo chiều sâu chìm xuống chuẩn Chrome, viền thanh thoát `#2A3447`.
+     - Tăng độ tương phản của chữ: tên miền và thanh nhập liệu hiển thị màu trắng `#FFFFFF` sắc nét, chữ rõ ràng dễ đọc ở mọi điều kiện ánh sáng.
+  4. Trong các BottomSheet:
+     - Làm nền thẻ chìm dịu nhẹ (`#131B2E`), chữ tiêu đề trắng tinh khiết `#FFFFFF`, chữ phụ màu sáng `#CBD5E1`.
+  5. Kiểm thử, đóng gói APK mới và cập nhật tài liệu.
+- **Vì sao:** Người dùng phản hồi "backgroud nổi quá, che hết chữ, hãy cho chìm bớt lại, chữ thì rõ hơn lên". Các phần tử nền trước đây quá đậm và nổi bật gây lấn át và che mất chữ của trang web. Cần làm dịu background, tăng độ tương phản của chữ để đọc rõ và trải nghiệm nhẹ mắt hơn.
+- **Kết quả:** Đã hoàn thành 100%:
+  1. `dvi_mobile_content.js`: Nút nổi trên video/player đổi sang phong cách frosted glass bán trong suốt (`rgba(11, 17, 32, 0.72)` + backdrop blur 6px + viền mỏng thanh thoát), chữ trắng tinh khiết `#ffffff` kèm text shadow sắc nét, kích thước nhỏ gọn không che phụ đề hay tiêu đề. Không dán nút lên toàn bộ ảnh `<img>` trên web để tránh che bài viết, media ảnh được điều phối tải tập trung qua Toolbar và BottomSheet.
+  2. Nút FAB `fabDownload`: Đổi sang nền tối mờ bán trong suốt (`#E6182030`), viền mỏng `@color/primary_light`, chữ trắng tinh khiết `#FFFFFF` kèm shadow nhẹ, nằm gọn ở góc dưới không lấn át hay che mất nội dung web.
+  3. Thanh Omnibox & Toolbar: Nền Omnibox đổi sang tone tối trầm `#182030` chìm xuống tự nhiên tạo chiều sâu chuẩn Chrome, tên miền hiển thị màu trắng `#FFFFFF` sắc nét với font chữ medium, tương phản cao, dễ đọc ở mọi điều kiện ánh sáng.
+  4. Toàn bộ 40/40 tests Node.js PASS và toàn bộ Kotlin unit tests PASS. Đã biên dịch và đóng gói thành công file APK mới `android-app/dist/DownloadVideoImage.apk`.
+
+
+
 ### 2026-11-11 — Sửa lỗi: Không hiển thị nút Download / FAB trên vlxx.app và các trang web khác trên ứng dụng Android
 - **Định làm:**
   1. Trong `dvi_mobile_content.js`:
