@@ -29,6 +29,8 @@ class ChromeToolbar @JvmOverloads constructor(
     private val tvOmniboxUrl: TextView
     private val btnTabSwitcher: FrameLayout
     private val tvTabCount: TextView
+    private val btnToolbarDownload: FrameLayout
+    private val tvToolbarDownloadBadge: TextView
     private val btnOverflowMenu: TextView
     private val pbWebProgress: ProgressBar
 
@@ -36,6 +38,7 @@ class ChromeToolbar @JvmOverloads constructor(
 
     var onHomeClick: (() -> Unit)? = null
     var onOmniboxClick: (() -> Unit)? = null
+    var onDownloadClick: (() -> Unit)? = null
     var onTabSwitcherClick: (() -> Unit)? = null
     var onNewTabClick: (() -> Unit)? = null
     var onReloadClick: (() -> Unit)? = null
@@ -52,11 +55,14 @@ class ChromeToolbar @JvmOverloads constructor(
         tvOmniboxUrl = findViewById(R.id.tvOmniboxUrl)
         btnTabSwitcher = findViewById(R.id.btnTabSwitcher)
         tvTabCount = findViewById(R.id.tvTabCount)
+        btnToolbarDownload = findViewById(R.id.btnToolbarDownload)
+        tvToolbarDownloadBadge = findViewById(R.id.tvToolbarDownloadBadge)
         btnOverflowMenu = findViewById(R.id.btnOverflowMenu)
         pbWebProgress = findViewById(R.id.pbWebProgress)
 
         btnHome.setOnClickListener { onHomeClick?.invoke() }
         layoutOmnibox.setOnClickListener { onOmniboxClick?.invoke() }
+        btnToolbarDownload.setOnClickListener { onDownloadClick?.invoke() }
         btnTabSwitcher.setOnClickListener { onTabSwitcherClick?.invoke() }
         btnOverflowMenu.setOnClickListener { showOverflowMenu(it) }
     }
@@ -91,6 +97,19 @@ class ChromeToolbar @JvmOverloads constructor(
      */
     fun updateTabCount(count: Int) {
         tvTabCount.text = if (count > 99) ":D" else count.toString()
+    }
+
+    /**
+     * Cập nhật trạng thái hiển thị và số lượng media của nút Tải trên Toolbar.
+     */
+    fun setDownloadButtonVisible(visible: Boolean, mediaCount: Int = 0) {
+        btnToolbarDownload.visibility = if (visible) View.VISIBLE else View.GONE
+        if (mediaCount > 0) {
+            tvToolbarDownloadBadge.visibility = View.VISIBLE
+            tvToolbarDownloadBadge.text = if (mediaCount > 99) "99+" else mediaCount.toString()
+        } else {
+            tvToolbarDownloadBadge.visibility = View.GONE
+        }
     }
 
     /**

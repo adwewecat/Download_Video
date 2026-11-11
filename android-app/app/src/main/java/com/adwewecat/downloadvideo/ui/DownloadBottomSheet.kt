@@ -34,12 +34,36 @@ class DownloadBottomSheet : BottomSheetDialogFragment() {
 
         val tvTitle = view.findViewById<TextView>(R.id.tvSheetTitle)
         val tvUrlSnippet = view.findViewById<TextView>(R.id.tvMediaUrlSnippet)
+        val cardImage = view.findViewById<MaterialCardView>(R.id.cardImage)
         val cardCompatible = view.findViewById<MaterialCardView>(R.id.cardCompatible)
         val cardBest = view.findViewById<MaterialCardView>(R.id.cardBest)
         val cardMp3 = view.findViewById<MaterialCardView>(R.id.cardMp3)
 
-        tvTitle.text = if (mediaTitle.isNotBlank()) mediaTitle else "Tải Video / Media"
+        val isImage = mediaUrl.contains(".jpg", ignoreCase = true) ||
+                mediaUrl.contains(".jpeg", ignoreCase = true) ||
+                mediaUrl.contains(".png", ignoreCase = true) ||
+                mediaUrl.contains(".webp", ignoreCase = true)
+
+        if (isImage) {
+            tvTitle.text = if (mediaTitle.isNotBlank()) mediaTitle else "Tải Hình Ảnh"
+            cardImage.visibility = View.VISIBLE
+            cardCompatible.visibility = View.GONE
+            cardBest.visibility = View.GONE
+            cardMp3.visibility = View.GONE
+        } else {
+            tvTitle.text = if (mediaTitle.isNotBlank()) mediaTitle else "Tải Video / Media"
+            cardImage.visibility = View.GONE
+            cardCompatible.visibility = View.VISIBLE
+            cardBest.visibility = View.VISIBLE
+            cardMp3.visibility = View.VISIBLE
+        }
+
         tvUrlSnippet.text = mediaUrl
+
+        cardImage.setOnClickListener {
+            dismiss()
+            onQualitySelected?.invoke("image")
+        }
 
         cardCompatible.setOnClickListener {
             dismiss()

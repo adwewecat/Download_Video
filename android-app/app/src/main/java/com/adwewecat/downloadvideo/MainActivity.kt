@@ -139,12 +139,42 @@ class MainActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
             confirmClearBrowsingData()
         }
 
+        chromeToolbar.onDownloadClick = {
+            val activeTab = tabManager.getActiveTab()
+            if (activeTab != null && !activeTab.isNewTabPage) {
+                val mediaList = tabMediaMap[activeTab.id]
+                if (!mediaList.isNullOrEmpty()) {
+                    val targetMedia = mediaList.firstOrNull { it.type == "video" } ?: mediaList.first()
+                    showDownloadSheet(targetMedia)
+                } else {
+                    val pageTitle = if (activeTab.title.isNotBlank() && activeTab.title != activeTab.url) activeTab.title else "Video"
+                    val pageMedia = DetectedMedia(
+                        type = "video",
+                        url = activeTab.url,
+                        title = pageTitle,
+                        platform = "web"
+                    )
+                    showDownloadSheet(pageMedia)
+                }
+            }
+        }
+
         // Nút FAB Tải Media nổi ở góc màn hình
         fabDownload.setOnClickListener {
             val activeTab = tabManager.getActiveTab() ?: return@setOnClickListener
             val mediaList = tabMediaMap[activeTab.id]
             if (!mediaList.isNullOrEmpty()) {
-                showDownloadSheet(mediaList.last())
+                val targetMedia = mediaList.firstOrNull { it.type == "video" } ?: mediaList.first()
+                showDownloadSheet(targetMedia)
+            } else if (!activeTab.isNewTabPage) {
+                val pageTitle = if (activeTab.title.isNotBlank() && activeTab.title != activeTab.url) activeTab.title else "Video"
+                val pageMedia = DetectedMedia(
+                    type = "video",
+                    url = activeTab.url,
+                    title = pageTitle,
+                    platform = "web"
+                )
+                showDownloadSheet(pageMedia)
             }
         }
 
@@ -199,6 +229,7 @@ class MainActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
             chromeToolbar.updateUrl(TabManager.NEW_TAB_URL)
             chromeToolbar.setProgress(100)
             fabDownload.visibility = View.GONE
+            chromeToolbar.setDownloadButtonVisible(false, 0)
         } else {
             val webView = getOrCreateWebView(tab)
             tabContentContainer.addView(webView)
@@ -231,6 +262,10 @@ class MainActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
             settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             settings.setSupportMultipleWindows(false)
             settings.javaScriptCanOpenWindowsAutomatically = false
+            settings.allowFileAccess = true
+            settings.allowContentAccess = true
+            settings.loadWithOverviewMode = true
+            settings.useWideViewPort = true
 
             // Bật cookie đồng bộ
             CookieManager.getInstance().setAcceptCookie(true)
@@ -245,6 +280,15 @@ class MainActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
                 override fun onProgressChanged(view: WebView?, newProgress: Int) {
                     if (tabManager.getActiveTab()?.id == tab.id) {
                         chromeToolbar.setProgress(newProgress)
+                        val currentUrl = view?.url
+                        if (!currentUrl.isNullOrBlank() && currentUrl != tab.url) {
+                            tab.url = currentUrl
+                            chromeToolbar.updateUrl(currentUrl)
+                            updateFabForActiveTab()
+                            if (scriptContent.isNotBlank()) {
+                                view.evaluateJavascript(scriptContent, null)
+                            }
+                        }
                     }
                 }
 
@@ -281,6 +325,7 @@ class MainActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
                         tab.url = it
                         if (tabManager.getActiveTab()?.id == tab.id) {
                             chromeToolbar.updateUrl(it)
+                            updateFabForActiveTab()
                         }
                     }
                     if (scriptContent.isNotBlank()) {
@@ -450,16 +495,49 @@ class MainActivity : AppCompatActivity(), DVIBridge.DVIBridgeListener {
     }
 
     /**
-     * Cập nhật nút nổi FAB hiển thị số lượng media phát hiện cho active tab.
+     * Cập nhật nút tải trên Toolbar và nút nổi FAB hiển thị số lượng media phát hiện cho active tab.
      */
     private fun updateFabForActiveTab() {
         val activeTab = tabManager.getActiveTab() ?: return
-        val list = tabMediaMap[activeTab.id]
-        if (list.isNullOrEmpty() || activeTab.isNewTabPage) {
+        if (activeTab.isNewTabPage) {
             fabDownload.visibility = View.GONE
-        } else {
+            chromeToolbar.setDownloadButtonVisible(false, 0)
+            return
+        }
+
+        val list = tabMediaMap[activeTab.id] ?: emptyList()
+        val totalCount = list.size
+
+        // Nút tải trên Toolbar luôn hiển thị khi duyệt bất kỳ trang web nào
+        chromeToolbar.setDownloadButtonVisible(true, totalCount)
+
+        // FAB ở góc màn hình: hiển thị khi có media hoặc là trang video
+        val isVideoUrl = activeTab.url.contains("youtube.com") ||
+                activeTab.url.contains("facebook.com") ||
+                activeTab.url.contains("tiktok.com") ||
+                activeTab.url.contains("instagram.com") ||
+                activeTab.url.contains("threads.net") ||
+                activeTab.url.contains("x.com") ||
+                activeTab.url.contains("vlxx") ||
+                activeTab.url.contains("phim") ||
+                activeTab.url.contains("/video") ||
+                activeTab.url.contains("/watch") ||
+                activeTab.url.contains("/reel")
+
+        if (totalCount > 0) {
             fabDownload.visibility = View.VISIBLE
-            fabDownload.text = "⬇ Tải (${list.size})"
+            val videoCount = list.count { it.type == "video" }
+            val imageCount = list.count { it.type == "image" }
+            fabDownload.text = when {
+                videoCount > 0 && imageCount > 0 -> "⬇ Tải ($totalCount)"
+                videoCount > 0 -> "⬇ Tải Video ($videoCount)"
+                else -> "🖼️ Tải Ảnh ($imageCount)"
+            }
+        } else if (isVideoUrl) {
+            fabDownload.visibility = View.VISIBLE
+            fabDownload.text = "⬇ Tải Video"
+        } else {
+            fabDownload.visibility = View.GONE
         }
     }
 

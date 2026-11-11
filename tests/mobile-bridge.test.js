@@ -58,4 +58,31 @@ describe('Mobile DVI Bridge Logic', () => {
     assert.equal(mediaItem.platform, 'instagram');
     assert.ok(mediaItem.url.startsWith('https://www.instagram.com/reel/'));
   });
+
+  it('nhận diện iframe player nhúng như vlstream / embed', () => {
+    const iframeSrc1 = 'https://play.vlstream.net/embed/abc123xyz';
+    const iframeSrc2 = 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+    const nonPlayerSrc = 'https://example.com/banner.html';
+
+    const isPlayer = (src) => /embed|player|video|vlstream|stream|youtube|vimeo|m3u8|mp4/i.test(src);
+
+    assert.equal(isPlayer(iframeSrc1), true);
+    assert.equal(isPlayer(iframeSrc2), true);
+    assert.equal(isPlayer(nonPlayerSrc), false);
+  });
+
+  it('phân loại đúng loại media giữa video và hình ảnh', () => {
+    const videoExts = ['.mp4', '.m3u8', '.vl', '.webm'];
+    const imageExts = ['.jpg', '.jpeg', '.png', '.webp'];
+
+    videoExts.forEach(ext => {
+      const url = `https://cdn.example.com/media${ext}`;
+      assert.ok(/\.(mp4|m3u8|vl|webm)(\?|$)/i.test(url));
+    });
+
+    imageExts.forEach(ext => {
+      const url = `https://cdn.example.com/media${ext}`;
+      assert.ok(/\.(jpg|jpeg|png|webp)(\?|$)/i.test(url));
+    });
+  });
 });

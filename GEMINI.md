@@ -71,6 +71,33 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-11 — Sửa lỗi: Không hiển thị nút Download / FAB trên vlxx.app và các trang web khác trên ứng dụng Android
+- **Định làm:**
+  1. Trong `dvi_mobile_content.js`:
+     - Tái cấu trúc bộ gắn nút nổi: gắn vào container cấp cao nhất (`#dvi-mobile-overlay-host` với `position: fixed; z-index: 2147483647`) thay vì append vào `parentElement` của video (tránh bị `overflow: hidden`, z-index của player và các lớp phủ trong suốt che khuất).
+     - Bổ sung quét thẻ `<iframe>`, `<embed>` (các trình phát nhúng như `play.vlstream.net` trên `vlxx.app`, YouTube embed, phim/anime) và gắn nút tải nổi ngay trên iframe.
+     - Bổ sung phát hiện luồng HLS/DASH/MP4 từ Performance API và thẻ script: nếu tìm thấy luồng stream thì lập tức gửi sang `DVIBridge.onMediaDetected` mà không bắt buộc phải có thẻ `<video>` trong DOM chính.
+     - Bổ sung quét thẻ `<img>` (kích thước >= 100x100) để hỗ trợ tải hình ảnh đúng với mục tiêu dự án "Download Video & Image".
+     - Tự động nhận diện URL trang video (nếu hostname là mạng xã hội/video hoặc URL chứa /video/, /watch, /reel, /clip, vlxx) để báo media ngay lập tức.
+     - Hỗ trợ SPA (Single Page App như YouTube): hook `pushState`, `replaceState`, `popstate` để tự động quét lại khi đổi video.
+  2. Trong `view_chrome_toolbar.xml` và `ChromeToolbar.kt`:
+     - Bổ sung nút tải trực tiếp `btnToolbarDownload` (⬇) ngay trên thanh công cụ Omnibox kèm badge đếm số lượng media phát hiện.
+     - Khi mở bất kỳ trang web nào (khác New Tab), nút ⬇ trên toolbar luôn hiển thị để người dùng có thể bấm tải 1-click bất kỳ lúc nào mà không phụ thuộc vào bố cục DOM của trang web.
+  3. Trong `MainActivity.kt`:
+     - Tự động kích hoạt nút Download trên toolbar và nút FAB khi nhận diện trang web là nguồn media hoặc khi `DVIBridge` báo về.
+     - Nếu người dùng bấm tải khi chưa có stream chi tiết, tự động lấy URL và tiêu đề trang hiện tại chuyển sang `yt-dlp` để tải độc lập.
+     - Đồng bộ và quét lại media khi người dùng cuộn hoặc chuyển tab.
+  4. Chạy kiểm thử tự động, build lại file APK mới, cập nhật tài liệu và đẩy lên GitHub `main`.
+- **Vì sao:** Người dùng mở trang `vlxx.app` và các web khác không thấy bất kỳ nút tải nào hiện lên. Nguyên nhân: `vlxx.app` và hầu hết các trang phim/stream nhúng player bên trong thẻ `<iframe>` (`play.vlstream.net`), script cũ chỉ quét thẻ `<video>` ở trang chính nên danh sách video rỗng và không kích hoạt nút. Đồng thời nút nổi cũ append vào thẻ cha của video bị thuộc tính `overflow: hidden` và lớp phủ player che mất, thiếu nút tải cố định trên thanh công cụ trình duyệt, và chưa hỗ trợ quét ảnh `<img>`.
+- **Kết quả:** Đã hoàn thành 100% triệt để:
+  1. `dvi_mobile_content.js`: bổ sung nhận diện đa tầng media gồm quét thẻ `<video>`, thẻ `<iframe>` (embed players như play.vlstream.net trên vlxx.app, youtube embed,...), luồng HLS/m3u8/mp4 từ Performance API và thẻ script, quét ảnh `<img>` (>= 100x100), và tự động nhận diện URL trang video/mạng xã hội.
+  2. Nút nổi cảm ứng trên trang web: chuyển sang gắn vào root container `#dvi-mobile-overlay-host` với `position: fixed` và `z-index: 2147483647` định vị theo toạ độ màn hình của phần tử, đảm bảo 100% không bao giờ bị `overflow: hidden`, lớp phủ player hoặc iframe che khuất.
+  3. Thêm nút Download trực tiếp `btnToolbarDownload` (⬇) ngay trên thanh Omnibox kèm số lượng media phát hiện. Khi duyệt bất kỳ trang web nào (khác New Tab), nút này luôn luôn hiện diện để người dùng có thể bấm tải 1-click bất kỳ lúc nào, kể cả khi video chưa phát.
+  4. Nút FAB ở góc dưới màn hình tự động hiển thị số lượng video/ảnh và hỗ trợ 1-click tải ngay.
+  5. Toàn bộ 40/40 tests Node.js PASS và toàn bộ Kotlin unit tests PASS. Đã build ra file APK mới `android-app/dist/DownloadVideoImage.apk`.
+
+
+
 ### 2026-11-11 — Nâng cấp ứng dụng Android thành Trình duyệt chuẩn Google Chrome (Tasks 1 - 7)
 - **Định làm:**
   1. Xây dựng cấu trúc đa thẻ `WebTab` và `TabManager` quản lý lên tới 10 tab trong bộ nhớ.

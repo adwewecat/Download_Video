@@ -56,6 +56,34 @@ class DownloadService : Service() {
 
             Log.i(TAG, "Bắt đầu tải trong Background Service: $url | Chất lượng: $quality")
 
+            // Nếu là yêu cầu tải hình ảnh trực tiếp
+            val isDirectImage = quality == "image" ||
+                    url.contains(".jpg", ignoreCase = true) ||
+                    url.contains(".jpeg", ignoreCase = true) ||
+                    url.contains(".png", ignoreCase = true) ||
+                    url.contains(".webp", ignoreCase = true)
+
+            if (isDirectImage && !url.contains("youtube.com") && !url.contains("facebook.com")) {
+                try {
+                    val rawExt = url.substringAfterLast('.').substringBefore('?').lowercase(java.util.Locale.ROOT)
+                    val ext = if (rawExt in setOf("jpg", "jpeg", "png", "webp", "gif")) rawExt else "jpg"
+                    val safeName = StorageUtils.sanitizeFileName(title, ext)
+                    val destFile = java.io.File(outDir, safeName)
+                    java.net.URL(url).openStream().use { input ->
+                        destFile.outputStream().use { output ->
+                            input.copyTo(output)
+                        }
+                    }
+                    StorageUtils.scanMediaFile(this@DownloadService, destFile.absolutePath) { uri ->
+                        showSuccessNotification(notificationId, title, destFile.absolutePath, uri)
+                    }
+                    stopForeground(STOP_FOREGROUND_DETACH)
+                    return@launch
+                } catch (e: Exception) {
+                    Log.e(TAG, "Lỗi tải ảnh trực tiếp: ${e.message}, chuyển sang yt-dlp", e)
+                }
+            }
+
             YtDlpDownloader.download(
                 context = this@DownloadService,
                 url = url,
