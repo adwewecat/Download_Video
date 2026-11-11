@@ -74,6 +74,13 @@ try {
 
     # Tu dong phan giai cac link embed hoac API sang direct stream URL (HLS / m3u8 / vl) neu co
     if ($url) {
+      if ($url -match 'facebook\.com/stories/') {
+        Write-NativeMessage -Stream $stdout -Object @{
+          type    = 'error'
+          message = 'Facebook Story không hỗ trợ tải bằng link — hãy mở phát video trên story rồi bấm tải'
+        }
+        exit 0
+      }
       $url = Resolve-StreamUrl -Url $url -Referer $referer
     }
 

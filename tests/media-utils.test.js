@@ -131,7 +131,10 @@ test('isPermalink: nhận diện URL bài viết / video trên từng nền tả
   assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/watch/?v=123'));
   assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/reel/123'));
   assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/somepage/videos/123/'));
-  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/stories/1234567890/'));
+  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/user/posts/1234567890/'));
+  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/video.php?v=1234567890'));
+  assert.ok(U.isPermalink('facebook', 'https://www.facebook.com/permalink.php?story_fbid=123&id=456'));
+  assert.ok(!U.isPermalink('facebook', 'https://www.facebook.com/stories/1234567890/'));
   assert.ok(U.isPermalink('facebook', 'https://fb.watch/abc/'));
   assert.ok(U.isPermalink('instagram', 'https://www.instagram.com/stories/username/1234567890/'));
 });
@@ -202,6 +205,12 @@ test('extractStreamUrlFromHtml: trích xuất đúng link m3u8 / vl từ nội d
   assert.equal(
     U.extractStreamUrlFromHtml(sampleM3u8),
     'https://streaming.example.com/live/playlist.m3u8?token=xyz'
+  );
+
+  const sampleFbJson = '<script>{"browser_native_hd_url":"https:\\/\\/video.fhan1-1.fna.fbcdn.net\\/v\\/t39.25447-2\\/1000_n.mp4?_nc_cat=100","browser_native_sd_url":null}</script>';
+  assert.equal(
+    U.extractStreamUrlFromHtml(sampleFbJson),
+    'https://video.fhan1-1.fna.fbcdn.net/v/t39.25447-2/1000_n.mp4?_nc_cat=100'
   );
 
   assert.equal(U.extractStreamUrlFromHtml(''), null);

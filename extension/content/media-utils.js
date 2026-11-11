@@ -281,16 +281,27 @@
           const v = urlObj.searchParams.get('v');
           if (v) return `${origin}/watch/?v=${v}`;
         }
-        if (path.startsWith('/stories')) {
-          return `${origin}${path}`;
-        }
-        const reelMatch = /^\/reel\/([^/?#]+)/.exec(path);
+        const reelMatch = /^\/(?:reel|reels)\/([^/?#]+)/.exec(path);
         if (reelMatch) {
           return `${origin}/reel/${reelMatch[1]}`;
         }
         const vidMatch = /^\/([^/?#]+)\/videos\/(\d+)/.exec(path);
         if (vidMatch) {
           return `${origin}/${vidMatch[1]}/videos/${vidMatch[2]}/`;
+        }
+        if (path.startsWith('/video.php')) {
+          const v = urlObj.searchParams.get('v');
+          if (v) return `${origin}/video.php?v=${v}`;
+        }
+        if (path.startsWith('/permalink.php')) {
+          const fbid = urlObj.searchParams.get('story_fbid');
+          const id = urlObj.searchParams.get('id');
+          if (fbid && id) return `${origin}/permalink.php?story_fbid=${fbid}&id=${id}`;
+          if (fbid) return `${origin}/permalink.php?story_fbid=${fbid}`;
+        }
+        const postMatch = /^\/([^/?#]+)\/posts\/([^/?#]+)/.exec(path);
+        if (postMatch) {
+          return `${origin}/${postMatch[1]}/posts/${postMatch[2]}/`;
         }
         if (urlObj.hostname === 'fb.watch' || urlObj.hostname.endsWith('.fb.watch')) {
           if (path.length > 1) {
@@ -376,6 +387,14 @@
    */
   function extractStreamUrlFromHtml(html) {
     if (!html || typeof html !== 'string') return null;
+
+    // 1. Trích xuất luồng video Facebook / Instagram từ JSON script payload (playable_url, browser_native_hd_url, ...)
+    const fbMatch = /["'](?:browser_native_hd_url|browser_native_sd_url|playable_url_quality_hd|playable_url|hd_src|sd_src|video_url)["']\s*:\s*["'](https?:\\?\/\\?\/[^"']+)["']/i.exec(html);
+    if (fbMatch && fbMatch[1]) {
+      return fbMatch[1].replace(/\\\//g, '/');
+    }
+
+    // 2. Tìm file/source thông thường
     const m = /["'](?:file|source|src)["']\s*:\s*["'](https?:\/\/[^"']+\.(?:vl|m3u8|mpd|mp4)[^"']*)["']/i.exec(html)
       || /["'](?:file|source|src)["']\s*:\s*["'](https?:\/\/[^"']+)["']/i.exec(html)
       || /(https?:\/\/[^\s"'<>]+\.(?:m3u8|mpd|vl)(?:\?[^\s"'<>]*)?)/i.exec(html);

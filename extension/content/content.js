@@ -390,6 +390,16 @@
           return name;
         }
       }
+      // 3. Quét link video từ Facebook CDN (*.fbcdn.net)
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const name = entries[i].name;
+        if (name && typeof name === 'string' && /fbcdn\.net/i.test(name) && (/video/i.test(name) || /\/v\//i.test(name) || /\.mp4/i.test(name))) {
+          // Bỏ qua các file ảnh tĩnh như _n.jpg
+          if (!/\.(jpg|jpeg|png|webp|gif)(\?|$)/i.test(name)) {
+            return name;
+          }
+        }
+      }
     } catch {}
     return null;
   }
@@ -688,8 +698,8 @@
       if (route === 'ytdlp') {
         // Định tuyến sang yt-dlp qua Service Worker
         let targetUrl;
-        if (url && typeof url === 'string' && /^https?:\/\//i.test(url) && /\.(m3u8|mpd|vl)(\?|$)/i.test(url)) {
-          // Luồng stream HLS / DASH trực tiếp
+        if (url && typeof url === 'string' && /^https?:\/\//i.test(url) && (/\.(m3u8|mpd|vl)(\?|$)/i.test(url) || /fbcdn\.net/i.test(url) || /\.(mp4|webm)(\?|$)/i.test(url))) {
+          // Luồng stream HLS / DASH trực tiếp hoặc file media trực tiếp (như fbcdn / mp4)
           targetUrl = url;
         } else {
           const levels = collectLevels(element);
@@ -708,49 +718,81 @@
           }
         }
 
+        function sendDownloadToYtDlp(downloadUrl) {
+          let pageTitle = document.title || '';
+          try {
+            if (window.top && window.top !== window && window.top.document && window.top.document.title) {
+              pageTitle = window.top.document.title;
+            }
+          } catch {}
+
+          chrome.runtime.sendMessage(
+            {
+              type: 'DVI_YTDLP',
+              url: downloadUrl,
+              referer: window.location.href,
+              platform,
+              quality,
+              title: pageTitle,
+              noPrompt: !!noPrompt
+            },
+            (res) => {
+              if (chrome.runtime.lastError) {
+                const err = chrome.runtime.lastError.message || '';
+                const msg = err.includes('Extension context invalidated')
+                  ? 'Extension vừa cập nhật — hãy tải lại trang (F5)'
+                  : 'Chưa cài trình hỗ trợ — chạy native-host\\setup.bat';
+                setButtonState(element, 'error', msg);
+                return;
+              }
+              if (res && res.ok) {
+                if (res.jobId) {
+                  // Đăng ký jobId với element để nhận progress từ service worker
+                  window.__dviJobs = window.__dviJobs || new Map();
+                  window.__dviJobs.set(res.jobId, element);
+                }
+              } else {
+                setButtonState(element, 'error', (res && res.error) || 'Không thể khởi tạo yt-dlp');
+              }
+            }
+          );
+        }
+
+        // Tải trực tiếp siêu tốc nếu là video trực tiếp từ CDN Facebook (fbcdn.net) và người dùng chọn tải video thường (compatible)
+        if (targetUrl && /fbcdn\.net/i.test(targetUrl) && quality === 'compatible') {
+          const titleSlug = (document.title || 'facebook_video').replace(/[\\/:*?"<>|]/g, ' ').trim().slice(0, 100);
+          const filename = `${titleSlug || 'facebook_video'}.mp4`;
+          chrome.runtime.sendMessage(
+            {
+              type: 'DVI_DIRECT',
+              url: targetUrl,
+              filename: filename
+            },
+            (res) => {
+              if (chrome.runtime.lastError || (res && !res.ok)) {
+                // Nếu direct download gặp lỗi, fallback gửi sang yt-dlp
+                sendDownloadToYtDlp(targetUrl);
+              } else {
+                setButtonState(element, 'done');
+              }
+            }
+          );
+          return;
+        }
+
+        // Chặn gửi link stories hoặc trang chủ Facebook sang yt-dlp vì yt-dlp không hỗ trợ /stories/ của Facebook
+        if (platform === 'facebook' && (targetUrl.includes('/stories/') || !U.isPermalink('facebook', targetUrl)) && !/fbcdn\.net/i.test(targetUrl)) {
+          setButtonState(element, 'error', 'Hãy mở hoặc phát video trên story trước khi bấm tải');
+          return;
+        }
+
         // Chặn gửi URL trang chủ / bảng tin chung chung sang yt-dlp vì chắc chắn sẽ bị lỗi Unsupported URL
         if (platform && !U.isPermalink(platform, targetUrl) && !/^https?:\/\/.*(fbcdn|cdninstagram|googlevideo|tiktokcdn)/i.test(targetUrl)) {
           setButtonState(element, 'error', 'Không tìm thấy link bài viết — hãy nhấp mở bài viết để tải');
           return;
         }
 
-        let pageTitle = document.title || '';
-        try {
-          if (window.top && window.top !== window && window.top.document && window.top.document.title) {
-            pageTitle = window.top.document.title;
-          }
-        } catch {}
-
-        chrome.runtime.sendMessage(
-          {
-            type: 'DVI_YTDLP',
-            url: targetUrl,
-            referer: window.location.href,
-            platform,
-            quality,
-            title: pageTitle,
-            noPrompt: !!noPrompt
-          },
-          (res) => {
-            if (chrome.runtime.lastError) {
-              const err = chrome.runtime.lastError.message || '';
-              const msg = err.includes('Extension context invalidated')
-                ? 'Extension vừa cập nhật — hãy tải lại trang (F5)'
-                : 'Chưa cài trình hỗ trợ — chạy native-host\\setup.bat';
-              setButtonState(element, 'error', msg);
-              return;
-            }
-            if (res && res.ok) {
-              if (res.jobId) {
-                // Đăng ký jobId với element để nhận progress từ service worker
-                window.__dviJobs = window.__dviJobs || new Map();
-                window.__dviJobs.set(res.jobId, element);
-              }
-            } else {
-              setButtonState(element, 'error', (res && res.error) || 'Không thể khởi tạo yt-dlp');
-            }
-          }
-        );
+        sendDownloadToYtDlp(targetUrl);
         return;
       }
 

@@ -57,7 +57,14 @@
           return name;
         }
       }
-      // 2. Kế tiếp tìm mp4, webm
+      // 2. Facebook direct video stream trên fbcdn.net
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const name = entries[i].name;
+        if (name && typeof name === 'string' && name.includes('fbcdn.net') && (/(\/v\/|\bvideo\b|\.mp4)/i.test(name))) {
+          return name;
+        }
+      }
+      // 3. Kế tiếp tìm mp4, webm
       for (let i = entries.length - 1; i >= 0; i--) {
         const name = entries[i].name;
         if (name && typeof name === 'string' && /\.(mp4|webm)(\?|$)/i.test(name)) {
@@ -74,6 +81,11 @@
       const scripts = document.querySelectorAll('script');
       for (const s of scripts) {
         const text = s.textContent || '';
+        // Facebook video stream trong JSON script
+        const fbMatch = /["'](?:browser_native_hd_url|browser_native_sd_url|playable_url_quality_hd|playable_url|hd_src|sd_src)["']\s*:\s*["'](https?:\\\/\\\/[^"']+)["']/i.exec(text);
+        if (fbMatch && fbMatch[1]) {
+          return fbMatch[1].replace(/\\\//g, '/');
+        }
         const m = /["'](?:file|source|src)["']\s*:\s*["'](https?:\/\/[^"']+\.(?:vl|m3u8|mpd|mp4)[^"']*)["']/i.exec(text)
           || /(https?:\/\/[^\s"'<>]+\.(?:m3u8|mpd|vl)(?:\?[^\s"'<>]*)?)/i.exec(text);
         if (m && m[1]) return m[1];
@@ -198,8 +210,13 @@
         if (sourceTag) targetUrl = sourceTag.src;
       }
       if (!targetUrl || targetUrl.startsWith('blob:') || platform !== 'web') {
-        targetUrl = streamUrl || pageUrl;
+        if (platform === 'facebook' && pageUrl.includes('/stories/')) {
+          targetUrl = streamUrl;
+        } else {
+          targetUrl = streamUrl || pageUrl;
+        }
       }
+      if (!targetUrl) return;
 
       const mediaInfo = {
         type: 'video',
@@ -267,11 +284,14 @@
 
     // 4. Nhận diện mức độ trang (Page-level video fallback)
     // Nếu là mạng xã hội hoặc URL chứa từ khoá video/phim (vlxx, watch, reel, video, clip)
-    const isVideoSiteOrPage = platform !== 'web' ||
-      /video|watch|reel|clip|film|movie|vlxx|phim|stream/i.test(pageUrl);
+    const isFacebookStory = platform === 'facebook' && pageUrl.includes('/stories/');
+    const isVideoSiteOrPage = !isFacebookStory && (platform !== 'web' ||
+      /video|watch|reel|clip|film|movie|vlxx|phim|stream/i.test(pageUrl));
 
     if (isVideoSiteOrPage) {
       notifyAndroidMedia('video', streamUrl || pageUrl, pageTitle, platform);
+    } else if (streamUrl) {
+      notifyAndroidMedia('video', streamUrl, pageTitle, platform);
     }
   }
 

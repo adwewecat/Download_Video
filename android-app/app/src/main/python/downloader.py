@@ -91,6 +91,9 @@ def download_media(url, quality='compatible', referer=None, cookies=None, out_di
     Thực thi tải video/audio bằng yt-dlp.
     Trả về đường dẫn file sau khi tải hoàn tất.
     """
+    if 'facebook.com/stories/' in url:
+        raise ValueError("Facebook Story không hỗ trợ tải trực tiếp qua link — hãy phát video trên story rồi bấm tải")
+
     try:
         import yt_dlp
     except ImportError:

@@ -71,6 +71,29 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-11 — Sửa lỗi: Tải video Facebook báo lỗi "Unsupported URL" do nhầm link Story/Highlight và thiếu trích xuất luồng trực tiếp
+- **Định làm:**
+  1. Trong `extension/content/media-utils.js`:
+     - Loại bỏ `/stories/` khỏi danh sách permalink Facebook trong `normalizePermalink`. yt-dlp không hỗ trợ Facebook `/stories/...` dẫn đến lỗi `Unsupported URL`.
+     - Bổ sung các định dạng permalink video Facebook thực tế được yt-dlp hỗ trợ: `/{user}/posts/{id}`, `/permalink.php?story_fbid=...`, `/video.php?v=...`, `/reels/{id}`.
+     - Nâng cấp `extractStreamUrlFromHtml` trích xuất luồng video trực tiếp từ các thuộc tính JSON của Facebook trong thẻ script: `playable_url`, `playable_url_quality_hd`, `browser_native_hd_url`, `browser_native_sd_url`, `hd_src`, `sd_src`, unescape dấu gạch chéo `\/`.
+  2. Trong `extension/content/content.js`:
+     - Nâng cấp `findDirectStreamFromPerformance()` bắt các luồng video tải qua `fbcdn.net` (`/v/`, `video`, `.mp4`).
+     - Khi phần tử video đã có link luồng trực tiếp (`fbcdn.net` hoặc `.mp4`), giữ nguyên `targetUrl = url` thay vì bị ghi đè bởi link cha `/stories/...`.
+     - Với video trực tiếp `fbcdn.net`, điều phối tải trực tiếp qua `DVI_DIRECT` (chrome.downloads) để tải nhanh 100% không cần qua yt-dlp.
+     - Chặn gửi link `/stories/` chưa có luồng sang yt-dlp và thông báo rõ ràng "Hãy mở hoặc phát video trên story trước khi bấm tải".
+  3. Trong `native-host/host.ps1`:
+     - Bổ sung phòng thủ kiểm tra URL `/stories/`: nếu nhận link story mà chưa có stream thì báo lỗi thân thiện thay vì để yt-dlp văng Unsupported URL.
+  4. Cập nhật `dvi_mobile_content.js` để đồng bộ cơ chế trích xuất Facebook video stream.
+  5. Cập nhật test suite, kiểm thử tự động, build và đẩy lên GitHub `main`.
+- **Vì sao:** Người dùng tải video trên trang cá nhân / Tin nổi bật (Stories) của Facebook gặp thông báo "Tải thất bại: Unsupported URL: https://www.facebook.com/stories/...". Nguyên nhân: yt-dlp hoàn toàn không hỗ trợ định dạng URL `/stories/` của Facebook; đồng thời script trước đây gán `/stories/` làm permalink và ghi đè link video trực tiếp, khiến yt-dlp bị chuyển hướng sang login.php và văng lỗi.
+- **Kết quả:** Đã hoàn thành 100%:
+  1. `extension/content/media-utils.js`: Loại bỏ hoàn toàn `/stories/` khỏi permalink Facebook (vì yt-dlp không hỗ trợ `/stories/`). Bổ sung đầy đủ định dạng video hợp lệ (`/posts/`, `/video.php`, `/permalink.php`). Bổ sung trích xuất trực tiếp stream `fbcdn.net` từ script JSON của Facebook (`playable_url`, `browser_native_hd_url`,...).
+  2. `extension/content/content.js`: Nâng cấp `findDirectStreamFromPerformance()` bắt luồng `fbcdn.net`. Giữ nguyên link stream trực tiếp khi người dùng bấm tải thay vì bị link cha `/stories/` ghi đè. Tải trực tiếp qua `chrome.downloads.download` cho link `fbcdn.net` 1-click tức thì. Chặn link `/stories/` chưa phát kèm thông báo hướng dẫn.
+  3. `native-host/host.ps1`: Thêm kiểm tra phòng thủ chặn link `/stories/` trước khi gọi yt-dlp.
+  4. `android-app`: Đồng bộ `dvi_mobile_content.js` và `downloader.py` phòng vệ và trích xuất luồng trực tiếp `fbcdn.net`.
+  5. Toàn bộ 40/40 Node.js unit tests PASS, toàn bộ Android unit tests PASS.
+
 ### 2026-11-11 — Cải tiến giao diện: Giảm độ nổi của background, chống che khuất chữ và tăng độ rõ nét của chữ
 - **Định làm:**
   1. Trong `dvi_mobile_content.js`:
