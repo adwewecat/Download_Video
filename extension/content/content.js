@@ -275,7 +275,7 @@
   }
 
   /**
-   * Định vị thanh công cụ vào góc trên-phải của media.
+   * Định vị thanh công cụ vào góc dưới cùng bên trái của media.
    */
   function updateBarPosition() {
     if (!activeTarget || !activeTarget.element) {
@@ -298,10 +298,20 @@
     const barWidth = bar.offsetWidth || 70;
     const barHeight = bar.offsetHeight || 30;
 
-    let targetX = rect.right - barWidth - BTN_OFFSET;
-    let targetY = rect.top + BTN_OFFSET;
+    // Khoảng cách từ mép dưới lên: nếu là video đủ lớn (>= 160px), chừa 40px tránh thanh điều khiển (play/timeline/volume)
+    let bottomOffset = BTN_OFFSET;
+    if (el.tagName === 'VIDEO' && rect.height >= 160) {
+      bottomOffset = 40 + BTN_OFFSET;
+    }
 
-    // Giới hạn trong viewport
+    let targetX = rect.left + BTN_OFFSET;
+    let targetY = rect.bottom - barHeight - bottomOffset;
+
+    // Đảm bảo không vượt quá phạm vi của media
+    targetX = Math.max(rect.left + BTN_OFFSET, Math.min(rect.right - barWidth - BTN_OFFSET, targetX));
+    targetY = Math.max(rect.top + BTN_OFFSET, Math.min(rect.bottom - barHeight - BTN_OFFSET, targetY));
+
+    // Giới hạn trong viewport hiển thị của trình duyệt
     targetX = Math.max(BTN_OFFSET, Math.min(window.innerWidth - barWidth - BTN_OFFSET, targetX));
     targetY = Math.max(BTN_OFFSET, Math.min(window.innerHeight - barHeight - BTN_OFFSET, targetY));
 
@@ -400,6 +410,17 @@
           }
         }
       }
+      // 4. Quét link video từ Zalo CDN (*.zdn.vn, *.zadn.vn, *.zalo.me, *.zaloapp.com)
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const name = entries[i].name;
+        if (name && typeof name === 'string' && /zdn\.vn|zadn\.vn|zalo\.me|zaloapp\.com/i.test(name)) {
+          if (/\.(mp4|webm|mov)(\?|$)/i.test(name) || /video/i.test(name) || /mediatype=video/i.test(name)) {
+            if (!/\.(jpg|jpeg|png|webp|gif|svg|css|js|json)(\?|$)/i.test(name)) {
+              return name;
+            }
+          }
+        }
+      }
     } catch {}
     return null;
   }
@@ -450,6 +471,18 @@
       if (!foundVideo && tag === 'video') {
         foundVideo = el;
         break; // Ưu tiên video cao nhất
+      }
+
+      // Hỗ trợ Zalo Web & custom players: tìm thẻ <video> lồng bên trong container hoặc phần tử overlay
+      if (!foundVideo && el.querySelector) {
+        const innerVideo = el.querySelector('video');
+        if (innerVideo) {
+          const vRect = innerVideo.getBoundingClientRect();
+          if (vRect.width >= MIN_SIZE && vRect.height >= MIN_SIZE) {
+            foundVideo = innerVideo;
+            break;
+          }
+        }
       }
 
       if (!foundImg && tag === 'img') {
@@ -536,6 +569,42 @@
   // Cập nhật vị trí khi scroll hoặc resize
   window.addEventListener('scroll', () => { if (activeTarget) updateBarPosition(); }, { capture: true, passive: true });
   window.addEventListener('resize', () => { if (activeTarget) updateBarPosition(); }, { passive: true });
+
+  // Tự động gắn thanh tải vào góc dưới-trái ngay khi có video bắt đầu phát trên trang (Zalo, YouTube, web players)
+  document.addEventListener(
+    'play',
+    (e) => {
+      if (e.target && e.target.tagName === 'VIDEO') {
+        const v = e.target;
+        const rect = v.getBoundingClientRect();
+        if (rect.width >= MIN_SIZE && rect.height >= MIN_SIZE) {
+          let url = v.currentSrc || v.src || '';
+          if (!url) {
+            const source = v.querySelector('source[src]');
+            if (source) url = source.src;
+          }
+          if (!url || url.startsWith('blob:')) {
+            const directStream = inPageStreamUrl || findDirectStreamFromPerformance() || findDirectStreamInDocument();
+            if (directStream) url = directStream;
+          }
+          const urlKind = U.getUrlKind(url);
+          const platform = U.detectPlatform(window.location.hostname);
+          const route = U.chooseRoute('video', urlKind, platform, url);
+          activeTarget = {
+            element: v,
+            mediaType: 'video',
+            url,
+            urlKind,
+            platform,
+            route
+          };
+          mountContainer();
+          updateBarPosition();
+        }
+      }
+    },
+    { capture: true, passive: true }
+  );
 
   /**
    * Thu thập các cấp link thẻ cha (ancestor levels) để chọn permalink chính xác trên mạng xã hội.
@@ -631,6 +700,16 @@
     return null;
   }
 
+  function triggerAnchorDownload(downloadUrl, filename) {
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    a.style.display = 'none';
+    (document.body || document.documentElement).appendChild(a);
+    a.click();
+    setTimeout(() => a.remove(), 2000);
+  }
+
   /**
    * Xử lý hành động tải khi bấm nút.
    */
@@ -652,9 +731,17 @@
         let filename = undefined;
         if (urlKind === 'data') {
           filename = U.filenameForDataUrl(url, mediaType, new Date());
+        } else if (mediaType === 'video') {
+          let pageTitle = document.title || 'video';
+          let titleSlug = pageTitle.replace(/[\\/:*?"<>|]/g, ' ').trim().slice(0, 80);
+          if (titleSlug.toLowerCase().includes('zalo')) {
+            titleSlug = 'zalo_video';
+          }
+          const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+          filename = `${titleSlug || 'video'}_${timestamp}.mp4`;
         }
 
-        chrome.runtime.sendMessage({ type: 'DVI_DIRECT', url, filename }, (res) => {
+        chrome.runtime.sendMessage({ type: 'DVI_DIRECT', url, filename, referer: window.location.href }, (res) => {
           if (chrome.runtime.lastError) {
             const err = chrome.runtime.lastError.message || '';
             const msg = err.includes('Extension context invalidated')
@@ -692,6 +779,80 @@
           setButtonState(element, 'error', 'Không đọc được blob');
         };
         reader.readAsDataURL(blob);
+        return;
+      }
+
+      if (route === 'blob-video') {
+        let pageTitle = document.title || 'video';
+        let titleSlug = pageTitle.replace(/[\\/:*?"<>|]/g, ' ').trim().slice(0, 80);
+        if (titleSlug.toLowerCase().includes('zalo')) {
+          titleSlug = 'zalo_video';
+        }
+        const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+        const filename = `${titleSlug || 'video'}_${timestamp}.mp4`;
+
+        // 1. Thử fetch blob nội bộ trong trang
+        try {
+          const resp = await fetch(url);
+          if (resp.ok) {
+            const blob = await resp.blob();
+            // Nếu file blob <= 35MB, đọc bằng FileReader thành dataUrl và gửi cho chrome.downloads để hiện tiến độ chuẩn
+            if (blob.size > 0 && blob.size <= 35 * 1024 * 1024) {
+              const reader = new FileReader();
+              reader.onloadend = () => {
+                const dataUrl = reader.result;
+                chrome.runtime.sendMessage({ type: 'DVI_DIRECT', url: dataUrl, filename }, (res) => {
+                  if (res && res.ok) {
+                    setButtonState(element, 'done');
+                  } else {
+                    // Fallback thẻ <a> nếu sendMessage gặp lỗi
+                    triggerAnchorDownload(url, filename);
+                    setButtonState(element, 'done');
+                  }
+                });
+              };
+              reader.onerror = () => {
+                triggerAnchorDownload(url, filename);
+                setButtonState(element, 'done');
+              };
+              reader.readAsDataURL(blob);
+              return;
+            } else if (blob.size > 35 * 1024 * 1024) {
+              // File lớn hơn 35MB: tạo Object URL và tải bằng thẻ <a> trực tiếp
+              const objectUrl = URL.createObjectURL(blob);
+              triggerAnchorDownload(objectUrl, filename);
+              setTimeout(() => URL.revokeObjectURL(objectUrl), 10000);
+              setButtonState(element, 'done');
+              return;
+            }
+          }
+        } catch (fetchErr) {
+          console.warn('[DVI] fetch blob video thất bại, chuyển sang thẻ <a> trực tiếp:', fetchErr);
+        }
+
+        // 2. Tải trực tiếp bằng thẻ <a> download với blob URL
+        try {
+          triggerAnchorDownload(url, filename);
+          setButtonState(element, 'done');
+          return;
+        } catch (aErr) {
+          console.warn('[DVI] a.download thất bại:', aErr);
+        }
+
+        // 3. Nếu blob URL không đọc được (như MediaSource), tìm luồng từ Performance API
+        const streamUrl = findDirectStreamFromPerformance();
+        if (streamUrl) {
+          chrome.runtime.sendMessage({ type: 'DVI_DIRECT', url: streamUrl, filename, referer: window.location.href }, (res) => {
+            if (res && res.ok) {
+              setButtonState(element, 'done');
+            } else {
+              setButtonState(element, 'error', (res && res.error) || 'Tải thất bại');
+            }
+          });
+          return;
+        }
+
+        setButtonState(element, 'error', 'Không thể tải blob video này');
         return;
       }
 

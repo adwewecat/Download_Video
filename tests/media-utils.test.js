@@ -180,7 +180,7 @@ test('choosePermalink: chọn permalink duy nhất từ các tầng tổ tiên',
   assert.equal(U.choosePermalink('instagram', [[], [igUser, igP, igReel]], igHome), igReel);
 });
 
-test('chooseRoute: quyết định đường tải direct / blob-image / ytdlp / none', () => {
+test('chooseRoute: quyết định đường tải direct / blob-image / blob-video / ytdlp / none', () => {
   assert.equal(U.chooseRoute('image', 'http', 'instagram'), 'direct');
   assert.equal(U.chooseRoute('image', 'data', null), 'direct');
   assert.equal(U.chooseRoute('image', 'blob', null), 'blob-image');
@@ -190,8 +190,10 @@ test('chooseRoute: quyết định đường tải direct / blob-image / ytdlp /
   assert.equal(U.chooseRoute('video', 'http', null, 'https://cdn.com/video.m3u8'), 'ytdlp');
   assert.equal(U.chooseRoute('video', 'http', null, 'https://rr3.gooqlevideo.com/manifest-s1/02067.vl'), 'ytdlp');
   assert.equal(U.chooseRoute('video', 'data', null), 'direct');
-  assert.equal(U.chooseRoute('video', 'blob', null), 'ytdlp');
-  assert.equal(U.chooseRoute('video', 'none', null), 'ytdlp');
+  assert.equal(U.chooseRoute('video', 'blob', null), 'blob-video');
+  assert.equal(U.chooseRoute('video', 'blob', 'youtube'), 'ytdlp');
+  assert.equal(U.chooseRoute('video', 'blob', null, 'https://cdn.com/video.m3u8'), 'ytdlp');
+  assert.equal(U.chooseRoute('video', 'none', null), 'none');
 });
 
 test('extractStreamUrlFromHtml: trích xuất đúng link m3u8 / vl từ nội dung script', () => {

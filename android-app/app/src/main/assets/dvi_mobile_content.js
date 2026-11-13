@@ -71,6 +71,17 @@
           return name;
         }
       }
+      // 4. Quét link video từ Zalo CDN (*.zdn.vn, *.zadn.vn, *.zalo.me, *.zaloapp.com)
+      for (let i = entries.length - 1; i >= 0; i--) {
+        const name = entries[i].name;
+        if (name && typeof name === 'string' && /zdn\.vn|zadn\.vn|zalo\.me|zaloapp\.com/i.test(name)) {
+          if (/\.(mp4|webm|mov)(\?|$)/i.test(name) || /video/i.test(name) || /mediatype=video/i.test(name)) {
+            if (!/\.(jpg|jpeg|png|webp|gif|svg|css|js|json)(\?|$)/i.test(name)) {
+              return name;
+            }
+          }
+        }
+      }
     } catch {}
     return null;
   }
@@ -156,8 +167,9 @@
         return;
       }
       badge.style.display = 'flex';
-      const badgeTop = Math.max(8, rect.top + 8);
-      const badgeLeft = Math.max(8, rect.right - 88);
+      const badgeBottomOffset = el.tagName === 'VIDEO' ? 36 : 8;
+      const badgeTop = Math.max(8, Math.min(window.innerHeight - 36, rect.bottom - 28 - badgeBottomOffset));
+      const badgeLeft = Math.max(8, Math.min(window.innerWidth - 88, rect.left + 8));
       badge.style.top = badgeTop + 'px';
       badge.style.left = badgeLeft + 'px';
     }
@@ -307,8 +319,9 @@
           badge.style.display = 'none';
         } else {
           badge.style.display = 'flex';
-          const badgeTop = Math.max(8, rect.top + 8);
-          const badgeLeft = Math.max(8, rect.right - 88);
+          const badgeBottomOffset = el.tagName === 'VIDEO' ? 36 : 8;
+          const badgeTop = Math.max(8, Math.min(window.innerHeight - 36, rect.bottom - 28 - badgeBottomOffset));
+          const badgeLeft = Math.max(8, Math.min(window.innerWidth - 88, rect.left + 8));
           badge.style.top = badgeTop + 'px';
           badge.style.left = badgeLeft + 'px';
         }

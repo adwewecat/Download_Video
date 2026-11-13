@@ -71,6 +71,33 @@
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
 
+### 2026-11-13 — Sửa lỗi: Tải video trên web Zalo (chat.zalo.me) và chuyển vị trí nút download từ góc trên-phải về góc dưới cùng bên trái
+- **Định làm:**
+  1. **Chuyển icon/thanh download về góc dưới cùng bên trái:**
+     - Trong `extension/content/content.js`: thay đổi logic toạ độ trong `updateBarPosition` từ góc trên-phải (`rect.right - barWidth - BTN_OFFSET`, `rect.top + BTN_OFFSET`) sang góc dưới cùng bên trái (`rect.left + BTN_OFFSET`, `rect.bottom - barHeight - bottomOffset`).
+     - Với phần tử `<video>` có chiều cao >= 160px, bổ sung khoảng trống an toàn 40px tránh che thanh điều khiển phát video (play/pause/timeline).
+     - Giới hạn trong viewport và trong phạm vi media để không bị trôi ra ngoài màn hình.
+     - Đồng bộ cả trong script mobile `dvi_mobile_content.js` đưa nút nổi cảm ứng về góc dưới-trái.
+  2. **Khắc phục triệt để lỗi không tải được video trên Web Zalo (`chat.zalo.me`):**
+     - Trong `extension/content/media-utils.js`: Bổ sung route `'blob-video'` trong `chooseRoute` cho các video phát dạng blob URL (`blob:https://chat.zalo.me/...` hoặc các web app không thuộc mạng xã hội yt-dlp). Trước đây gán blob video sang `'ytdlp'`, dẫn đến việc gửi URL `https://chat.zalo.me/` sang yt-dlp và văng lỗi `Unsupported URL`.
+     - Trong `extension/content/content.js`:
+       + Triển khai xử lý nhánh `route === 'blob-video'`: tải trực tiếp blob nội bộ trong trang qua thẻ `<a> download` hoặc FileReader (nếu blob <= 35MB) gửi sang Chrome Downloads API, và fallback sang fetch blob Object URL cho file lớn, hoàn toàn độc lập trong trình duyệt không qua yt-dlp.
+       + Bổ sung nhận diện luồng video Zalo CDN (`*.zdn.vn`, `*.zadn.vn`, `*.zalo.me`, `*.zaloapp.com`) trong `findDirectStreamFromPerformance()`.
+       + Nâng cấp `findMediaAt()` hỗ trợ tìm thẻ `<video>` nằm lồng bên trong container tin nhắn video / overlay của Zalo Web (`el.querySelector('video')`).
+       + Bổ sung event listener `play` trên document để tự động bắt và gắn thanh tải ngay khi video trên Zalo Web hoặc web bất kỳ bắt đầu phát.
+     - Trong `extension/background.js`: Hỗ trợ truyền `Referer` trong `chrome.downloads.download` options headers để chống chặn hotlink từ CDN Zalo.
+  3. Cập nhật test suite trong `tests/media-utils.test.js`, chạy kiểm thử 100% PASS, đóng gói APK, cập nhật tài liệu, commit và push lên GitHub `main`.
+- **Vì sao:** Người dùng báo: "check lại phần download đang không download được video trên web zalo , và check lại icon download đang hiển thị ở góc trên bên phải để download, hãy chuyển nó về góc dưới cùng bên trái, nhé". Icon ở góc trên bên phải bị che/đè lên các thẻ điều hướng của video player (như YouTube), và video trên Zalo Web sử dụng Blob URL hoặc CDN Zalo bị gửi nhầm sang yt-dlp dẫn đến tải thất bại.
+- **Kết quả:** Đã hoàn thành 100%:
+  1. Đã chuyển toàn bộ thanh công cụ download (⬇ / MAX / MP3) về góc dưới cùng bên trái của media element, có khoảng trống an toàn 40px trên video tránh che các nút play/timeline/volume và giới hạn viewport chuẩn xác.
+  2. Khắc phục triệt để lỗi không tải được video trên Web Zalo (`chat.zalo.me`):
+     - Bổ sung route `'blob-video'` trong `media-utils.js` để video Blob trên Zalo Web và web app được tải trực tiếp trong trình duyệt thay vì bị gửi nhầm sang `yt-dlp`.
+     - `content.js` hỗ trợ tải blob video bằng FileReader sang `DVI_DIRECT` (với file <= 35MB) hoặc qua thẻ `<a> download` trực tiếp với blob URL/Object URL, lưu file `.mp4` chuẩn tên và timestamp.
+     - Nâng cấp `findMediaAt()` bắt được thẻ `<video>` lồng sâu bên trong bong bóng tin nhắn / container video overlay của Zalo.
+     - Bổ sung nhận diện CDN Zalo (`zdn.vn`, `zadn.vn`, `zalo.me`, `zaloapp.com`) và event listener `play` tự động gắn thanh tải ngay khi phát.
+  3. Cập nhật `dvi_mobile_content.js` đồng bộ vị trí góc dưới-trái và nhận diện Zalo CDN.
+  4. Đạt 40/40 Node.js unit tests PASS và toàn bộ Android Kotlin unit tests PASS. Đã build ra file APK mới `android-app/dist/DownloadVideoImage.apk` (31.68 MB).
+
 ### 2026-11-11 — Sửa lỗi: Tải video Facebook báo lỗi "Unsupported URL" do nhầm link Story/Highlight và thiếu trích xuất luồng trực tiếp
 - **Định làm:**
   1. Trong `extension/content/media-utils.js`:

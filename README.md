@@ -2,7 +2,7 @@
 
 Chrome Extension giúp bạn tải **mọi hình ảnh và video** trên bất kỳ trang web nào bằng một cú bấm chuột:
 - **Hình ảnh:** Tự động phát hiện thẻ `<img>`, chọn ảnh có độ phân giải cao nhất từ `srcset`, trích xuất ảnh nền CSS (`background-image`), ảnh `data:` base64 và ảnh `blob:`.
-- **Video file thường:** Tải trực tiếp qua trình duyệt với định dạng `.mp4`, `.webm`.
+- **Video file thường & Zalo Web:** Tải trực tiếp qua trình duyệt với định dạng `.mp4`, `.webm`, hỗ trợ tải mượt mà video Blob trên **Zalo Web** (`chat.zalo.me`) và các web app 100% trong trình duyệt.
 - **Video nền tảng / video stream:** Tự động nhận diện và hỗ trợ đầy đủ các nền tảng lớn như **YouTube, Facebook, TikTok, Instagram, X (Twitter), Threads**, cũng như các trang stream HLS/DASH và trình phát nhúng (JWPlayer, Video.js, VLStream,...).
   - Nút **⬇**: Tải bản tương thích cao (H.264 + AAC trong `.mp4`), dễ mở trên mọi thiết bị và trình phát Windows.
   - Nút **MAX**: Tải bản nét nhất có thể (2K / 4K AV1/VP9 nếu nguồn có hỗ trợ).
@@ -61,7 +61,7 @@ cd Download_Video
 
 1. Truy cập bất kỳ trang web nào (Youtube, Facebook, TikTok, Instagram, X, trang báo điện tử,...).
 2. **Rê chuột lên hình ảnh hoặc video** bất kỳ (kích thước tối thiểu 60×60 px).
-3. Một thanh công cụ nổi nhỏ gọn sẽ xuất hiện ở góc trên bên phải của media:
+3. Một thanh công cụ nổi nhỏ gọn sẽ xuất hiện ở **góc dưới cùng bên trái** của media (tránh che khuất các thẻ thông tin và thanh điều khiển):
    - Với **hình ảnh**: Bấm nút **⬇** để tải về (tự động chọn bản nét nhất).
    - Với **video mạng xã hội / stream**:
      - Bấm nút **⬇**: Tải video chuẩn tương thích (H.264 + AAC, tối đa 1080p).

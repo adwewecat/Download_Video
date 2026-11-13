@@ -408,7 +408,7 @@
    * @param {'http'|'data'|'blob'|'none'} urlKind - Loại URL
    * @param {string|null} platform - Tên nền tảng (nếu có)
    * @param {string} [url=''] - URL media (dùng để nhận diện stream .m3u8/.mpd/.vl)
-   * @returns {'direct'|'blob-image'|'ytdlp'|'none'}
+   * @returns {'direct'|'blob-image'|'blob-video'|'ytdlp'|'none'}
    */
   function chooseRoute(mediaType, urlKind, platform, url = '') {
     if (mediaType === 'image') {
@@ -432,8 +432,8 @@
       if (urlKind === 'http' || urlKind === 'data') {
         return 'direct';
       }
-      if (urlKind === 'blob' || urlKind === 'none') {
-        return 'ytdlp';
+      if (urlKind === 'blob') {
+        return 'blob-video';
       }
       return 'none';
     }

@@ -75,7 +75,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 /**
  * Thực hiện tải trực tiếp media bằng API chrome.downloads.
  */
-async function handleDirectDownload({ url, filename }) {
+async function handleDirectDownload({ url, filename, referer }) {
   if (!url || typeof url !== 'string') {
     return { ok: false, error: 'URL không hợp lệ' };
   }
@@ -93,6 +93,10 @@ async function handleDirectDownload({ url, filename }) {
 
   if (filename && typeof filename === 'string' && filename.trim()) {
     options.filename = filename.trim();
+  }
+
+  if (referer && /^https?:\/\//i.test(trimmed)) {
+    options.headers = [{ name: 'Referer', value: referer }];
   }
 
   try {
