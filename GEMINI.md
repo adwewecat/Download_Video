@@ -39,7 +39,7 @@
     + **Menu ba chấm ⋮:** Thẻ mới, Tải lại, bật/tắt **Trang web cho máy tính** (Desktop Site), mở **Tệp đã tải xuống**, và **Xoá dữ liệu duyệt web** (cache, cookie, web storage) 1-click.
     + **Trình Quản Lý Tệp Đã Tải Xuống (Downloads BottomSheet):** Liệt kê chi tiết toàn bộ video, nhạc MP3, ảnh trong `Downloads/Download_Video/`, hỗ trợ mở phát trực tiếp qua VLC/Thư viện ảnh, chia sẻ tệp sang Zalo/Drive/Messenger và xoá tệp an toàn.
     + **Độc lập 100% trong máy:** Nhúng Python qua Chaquopy chạy `yt-dlp` PyPI, binary FFmpeg tĩnh ARM64 muxing 2K/4K và MP3, Background Foreground Service kèm tiến độ %, lưu file an toàn vào `Downloads/Download_Video/` và quét MediaStore vào Gallery.
-  - Test suite tự động: 38/38 tests Node.js PASS + toàn bộ Kotlin Unit Tests PASS.
+  - Test suite tự động: 46/46 tests Node.js PASS + toàn bộ Kotlin Unit Tests PASS.
   - Kịch bản đóng gói 1-click: `build-apk.bat` (tại thư mục gốc) và `android-app/build-apk.bat`.
 
 ---
@@ -70,6 +70,27 @@
 ---
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
+
+### 2026-11-13 — Sửa lỗi: Chặn vi phạm CSP inline script (`content.js`), lỗi header `Referer` khi tải trực tiếp (`background.js`), và bảo vệ tải video Blob trên Zalo Web
+- **Định làm:**
+  1. **Loại bỏ triệt để lỗi vi phạm Content Security Policy (CSP) `Executing inline script` tại `extension/content/content.js:376`:**
+     - Tạo script độc lập `extension/content/page-probe.js` chạy trực tiếp trong `"world": "MAIN"` thông qua cấu hình `content_scripts` trong `extension/manifest.json` (MV3 chuẩn Chrome, không cần chèn thẻ `<script>` inline vào DOM của trang web).
+     - Giao tiếp hai chiều với `content.js` bằng `CustomEvent` (`__dvi_probe_request` và `__dvi_stream_found`), không phụ thuộc thứ tự tải script và miễn nhiễm với CSP `script-src`.
+     - Gia cố Shadow DOM UI trong `content.js` theo hướng tương thích CSP `style-src` / Trusted Types (`setProperty`, `adoptedStyleSheets` có fallback `<style>`, tạo phần tử SVG/DOM trực tiếp thay vì `innerHTML`).
+  2. **Sửa lỗi `Referer` bị Chrome chặn trong `chrome.downloads.download` (`extension/background.js`):**
+     - Xoá tuỳ chọn `options.headers = [{ name: 'Referer', ... }]` khỏi `handleDirectDownload` vì Chrome cấm thiết lập `Referer` trong API `downloads.download` (sẽ gây lỗi unsafe header và làm hỏng tải trực tiếp).
+     - Đồng thời vá lỗi `Unchecked runtime.lastError` tại các lệnh gọi `chrome.notifications.create` và trả về `false` khi đã `sendResponse` đồng bộ ở nhánh `DVI_YTDLP`.
+  3. **Bảo vệ luồng tải Blob Video trên Zalo Web & chuẩn hoá đặt tên file (`content.js`, `media-utils.js`, `dvi_mobile_content.js`):**
+     - Tách hàm dùng chung `resolveVideoSource(videoEl)` và siết chặt bộ lọc Zalo CDN trong `findDirectStreamFromPerformance` (tránh nhận nhầm URL font/API chứa chữ `video` rồi ghi đè mất `blob:` hợp lệ của thẻ `<video>`).
+     - Khi tải HTTP URL trực tiếp qua `DVI_DIRECT` thất bại (do hotlink), tự động fallback `fetch(url)` lấy Blob trong ngữ cảnh trang để cứu luồng tải.
+     - Đưa hàm tạo tên file an toàn `buildMediaFilename` vào `extension/content/media-utils.js`, tách helper `sendDirectDownload` luôn đọc `chrome.runtime.lastError`, và chuẩn hoá ngưỡng FileReader `blob-video` (25MB) dưới giới hạn IPC của Chrome.
+  4. Bổ sung unit test hồi quy mới, chạy kiểm thử toàn bộ (Node.js + Android), đóng gói lại APK nếu có thay đổi mobile, cập nhật tài liệu và đẩy lên `main`.
+- **Vì sao:** Ảnh chụp trang `chrome://extensions` Errors do người dùng gửi báo hàng loạt lỗi `Executing inline script violates the following Content Security Policy directive 'script-src ...'` tại `content/content.js:376`, đồng thời rà soát phát hiện Chrome API từ chối header `Referer` trong `chrome.downloads.download` và nguy cơ ghi đè nhầm Blob URL trên Zalo Web.
+- **Kết quả:** Đã hoàn thành 100%:
+  1. **Triệt tiêu lỗi vi phạm CSP tại `extension/content/content.js:376`:** Tách phần quét `window.jwplayer` / `window.__SRC` sang [extension/content/page-probe.js](extension/content/page-probe.js) khai báo `"world": "MAIN"` trong `extension/manifest.json` và giao tiếp qua `CustomEvent` (`__dvi_probe_request` / `__dvi_stream_found`); gia cố Shadow DOM UI bằng `adoptedStyleSheets` (có fallback `<style>`), `style.setProperty(..., 'important')` và tạo DOM/SVG trực tiếp không dùng `innerHTML`.
+  2. **Sửa lỗi `chrome.downloads.download` & `runtime.lastError` (`extension/background.js` & `extension/content/content.js`):** Gỡ `options.headers = [{ name: 'Referer', ... }]` khỏi `handleDirectDownload` để Chrome không chặn tải trực tiếp; trả `false` khi đã `sendResponse` đồng bộ ở `DVI_YTDLP`; đọc `chrome.runtime.lastError` trong `notifyDone`/`notifyError` và hợp nhất gửi lệnh qua `sendDirectDownload` trong `content.js` (kèm fallback `fetch(url)` lấy Blob trong ngữ cảnh trang nếu tải HTTP bị chặn hotlink).
+  3. **Bảo vệ Zalo Web `blob-video` & chuẩn hoá tên file:** Tách `resolveVideoSource` để giữ nguyên `blob:` trên web app (`platform === null`) trừ khi có manifest `.m3u8/.mpd/.vl` thực sự; siết bộ lọc Zalo CDN trong `content.js` và `dvi_mobile_content.js` tránh khớp nhầm API/font chứa chữ `video`; chuẩn hoá `U.buildMediaFilename` trong `extension/content/media-utils.js` và hạ ngưỡng FileReader Blob video về 25MB (an toàn dưới giới hạn IPC).
+  4. **Kiểm thử & Đóng gói:** Bổ sung `tests/extension-safety.test.js` và test `buildMediaFilename` trong `tests/media-utils.test.js` — đạt **46/46** Node.js tests PASS (`node --test "tests/*.test.js"`), toàn bộ Android Kotlin Unit Tests PASS (`testDebugUnitTest`), đóng gói lại `android-app/dist/DownloadVideoImage.apk` (31.68 MB).
 
 ### 2026-11-13 — Sửa lỗi: Tải video trên web Zalo (chat.zalo.me) và chuyển vị trí nút download từ góc trên-phải về góc dưới cùng bên trái
 - **Định làm:**

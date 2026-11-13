@@ -91,6 +91,7 @@ Bao gồm:
 - **`tests/media-utils.test.js`**: Kiểm tra trích xuất `srcset`, CSS `background-image`, nhận diện nền tảng (YouTube, X, Insta, FB, TikTok, Threads), chuẩn hoá permalink và quyết định đường tải.
 - **`tests/host-utils.test.js`**: Kiểm tra xử lý stream Native Messaging nhị phân UTF-8, chuyển đổi cookie Netscape, trích dẫn tham số an toàn chuẩn Windows, và giải mã Extension ID.
 - **`tests/native-host.smoke.test.js`**: Smoke test giao tiếp thực tế với tiến trình `host.bat` và `yt-dlp.exe`.
+- **`tests/extension-safety.test.js`**: Kiểm thử hồi quy bảo mật CSP (`world: "MAIN"`), an toàn DOM/Trusted Types, loại bỏ header `Referer` và lọc Zalo CDN.
 - **`tests/manual/test-page.html`**: Trang HTML thử tay đầy đủ 9 trường hợp media (ảnh thường, srcset 2x, background CSS, data base64, blob URL, kích thước nhỏ < 60px, video mp4, ảnh có lớp phủ trong suốt, ảnh nằm trong thẻ `<a>`).
 
 ---
@@ -145,7 +146,8 @@ Download_Video_Image/
 │   ├── background.js          # Service worker (tải trực tiếp & điều phối yt-dlp)
 │   ├── content/
 │   │   ├── media-utils.js     # Hàm thuần xử lý URL, srcset, permalink
-│   │   └── content.js         # Nút nổi Shadow DOM, hit-test, hiển thị tiến độ
+│   │   ├── content.js         # Nút nổi Shadow DOM, hit-test, hiển thị tiến độ
+│   │   └── page-probe.js      # Script MAIN world (MV3) quét luồng player an toàn CSP
 │   └── icons/                 # Bộ icon 16, 32, 48, 128 px
 ├── native-host/               # Chương trình hỗ trợ Native Host trên Windows
 │   ├── setup.bat              # Script cài đặt 1-click cho người dùng

@@ -71,12 +71,16 @@
           return name;
         }
       }
-      // 4. Quét link video từ Zalo CDN (*.zdn.vn, *.zadn.vn, *.zalo.me, *.zaloapp.com)
+      // 4. Quét link video thực thụ từ Zalo CDN (*.zdn.vn, *.zadn.vn, *.zalo.me, *.zaloapp.com)
       for (let i = entries.length - 1; i >= 0; i--) {
         const name = entries[i].name;
         if (name && typeof name === 'string' && /zdn\.vn|zadn\.vn|zalo\.me|zaloapp\.com/i.test(name)) {
-          if (/\.(mp4|webm|mov)(\?|$)/i.test(name) || /video/i.test(name) || /mediatype=video/i.test(name)) {
-            if (!/\.(jpg|jpeg|png|webp|gif|svg|css|js|json)(\?|$)/i.test(name)) {
+          if (
+            /\.(mp4|webm|mov)(\?|$)/i.test(name) ||
+            /\/(videoplayback|getvideo)\b/i.test(name) ||
+            /[?&]mediatype=video\b/i.test(name)
+          ) {
+            if (!/\.(jpg|jpeg|png|webp|gif|svg|css|js|json|woff2?|ttf|html?|api)(\?|$)/i.test(name)) {
               return name;
             }
           }
@@ -213,11 +217,11 @@
       notifyAndroidMedia('video', streamUrl, pageTitle, platform);
     }
 
-    // 1. Quét các thẻ <video>
+    // 1. Quét các thẻ <video> (giữ URL nguồn trực tiếp của video nếu hợp lệ trước khi fallback)
     const videos = document.querySelectorAll('video');
     videos.forEach((v) => {
-      let targetUrl = streamUrl || v.currentSrc || v.src;
-      if (!targetUrl || targetUrl.startsWith('blob:')) {
+      let targetUrl = v.currentSrc || v.src || '';
+      if (!targetUrl) {
         const sourceTag = v.querySelector('source[src]');
         if (sourceTag) targetUrl = sourceTag.src;
       }

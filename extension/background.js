@@ -66,7 +66,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       tabId: sender.tab ? sender.tab.id : null,
       frameId: sender.frameId || 0
     });
-    return true;
+    return false;
   }
 
   return false;
@@ -74,8 +74,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 /**
  * Thực hiện tải trực tiếp media bằng API chrome.downloads.
+ * Lưu ý: Không truyền header `Referer` qua options.headers vì Chrome cấm các header
+ * hạn chế của Fetch/XHR và sẽ từ chối lệnh chrome.downloads.download.
  */
-async function handleDirectDownload({ url, filename, referer }) {
+async function handleDirectDownload({ url, filename }) {
   if (!url || typeof url !== 'string') {
     return { ok: false, error: 'URL không hợp lệ' };
   }
@@ -93,10 +95,6 @@ async function handleDirectDownload({ url, filename, referer }) {
 
   if (filename && typeof filename === 'string' && filename.trim()) {
     options.filename = filename.trim();
-  }
-
-  if (referer && /^https?:\/\//i.test(trimmed)) {
-    options.headers = [{ name: 'Referer', value: referer }];
   }
 
   try {
@@ -342,7 +340,9 @@ function notifyDone(filePath, vcodec, height) {
   const notifId = `dvi-done-${Date.now()}`;
   notificationPaths.set(notifId, filePath);
 
-  chrome.notifications.create(notifId, notifOptions);
+  chrome.notifications.create(notifId, notifOptions, () => {
+    void chrome.runtime.lastError;
+  });
 }
 
 /**
@@ -357,6 +357,8 @@ function notifyError(errorMessage) {
     title: 'Tải thất bại',
     message: errorMessage,
     priority: 1
+  }, () => {
+    void chrome.runtime.lastError;
   });
 }
 

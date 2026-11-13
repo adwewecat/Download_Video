@@ -219,4 +219,33 @@ test('extractStreamUrlFromHtml: trích xuất đúng link m3u8 / vl từ nội d
   assert.equal(U.extractStreamUrlFromHtml(null), null);
 });
 
+test('buildMediaFilename: tạo tên file an toàn, chuẩn timestamp local và chỉ nhận diện zalo theo hostname', () => {
+  const fixedNow = new Date(2026, 10, 13, 21, 5, 9);
+
+  // Chỉ đổi thành zalo_video khi hostname thuộc hệ thống Zalo
+  assert.equal(
+    U.buildMediaFilename('(2) Zalo - Tin nhắn', 'video', 'mp4', fixedNow, 'chat.zalo.me'),
+    'zalo_video_20261113-210509.mp4'
+  );
+  // Trang khác có chữ "Zalo" trong tiêu đề KHÔNG bị đổi nhầm sang zalo_video
+  assert.equal(
+    U.buildMediaFilename('Hướng dẫn Zalo Pay mới', 'video', 'mp4', fixedNow, 'www.youtube.com'),
+    'Hướng dẫn Zalo Pay mới_20261113-210509.mp4'
+  );
+
+  // Loại bỏ ký tự điều khiển, dấu '..' và dấu chấm đầu/cuối tránh lỗi Invalid filename của Chrome
+  const unsafeTitle = '\x00..Video: Test / Demo * "HD" <1080p> | .. ';
+  const built = U.buildMediaFilename(unsafeTitle, 'video', '.mp4', fixedNow, 'example.com');
+  assert.equal(built.includes('..'), false);
+  assert.equal(/[\\/:*?"<>|\x00-\x1f]/.test(built), false);
+  assert.equal(built.endsWith('_20261113-210509.mp4'), true);
+
+  // Tên thiết bị dành riêng của Windows được đổi sang prefix an toàn
+  assert.equal(
+    U.buildMediaFilename('CON', 'video', 'mp4', fixedNow, 'example.com'),
+    'video_20261113-210509.mp4'
+  );
+});
+
+
 

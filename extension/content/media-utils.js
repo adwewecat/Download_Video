@@ -441,11 +441,56 @@
     return 'none';
   }
 
+  /**
+   * Tạo tên file an toàn cho chrome.downloads.download từ tiêu đề trang.
+   * Sử dụng thời gian local, loại bỏ ký tự điều khiển / ký tự cấm của hệ điều hành,
+   * loại bỏ dấu chấm đầu/cuối hoặc '..' để tránh lỗi `Invalid filename` của Chrome,
+   * và chỉ dùng tiền tố `zalo_video` khi thực sự đang ở tên miền Zalo.
+   */
+  function buildMediaFilename(title, mediaType, ext, now = new Date(), hostname = '') {
+    const cleanHost = typeof hostname === 'string' ? hostname.trim().toLowerCase() : '';
+    const isZaloHost = /(^|\.)(zalo\.me|zaloapp\.com|zdn\.vn|zadn\.vn)$/.test(cleanHost);
+    const defaultPrefix = mediaType === 'image' ? 'image' : (isZaloHost ? 'zalo_video' : 'video');
+
+    const safeExtRaw = typeof ext === 'string'
+      ? ext.trim().replace(/^\.+/, '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase()
+      : '';
+    const safeExt = safeExtRaw || (mediaType === 'image' ? 'png' : 'mp4');
+
+    let slug = typeof title === 'string' ? title : '';
+    // Loại bỏ ký tự điều khiển, ký tự đặc biệt cấm đặt tên file và chuỗi '..'
+    slug = slug
+      .replace(/[\u0000-\u001f\u007f]/g, ' ')
+      .replace(/[\\/:*?"<>|]/g, ' ')
+      .replace(/\.{2,}/g, '.')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .replace(/^[.\s]+|[.\s]+$/g, '')
+      .slice(0, 80)
+      .replace(/^[.\s]+|[.\s]+$/g, '');
+
+    if (isZaloHost && mediaType === 'video' && (!slug || slug.toLowerCase().includes('zalo'))) {
+      slug = 'zalo_video';
+    }
+    if (!slug || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(slug)) {
+      slug = defaultPrefix;
+    }
+
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, '0');
+    const dd = String(now.getDate()).padStart(2, '0');
+    const hh = String(now.getHours()).padStart(2, '0');
+    const min = String(now.getMinutes()).padStart(2, '0');
+    const ss = String(now.getSeconds()).padStart(2, '0');
+    return `${slug}_${yyyy}${mm}${dd}-${hh}${min}${ss}.${safeExt}`;
+  }
+
   const DVIMediaUtils = Object.freeze({
     pickLargestFromSrcset,
     extractCssUrl,
     getUrlKind,
     filenameForDataUrl,
+    buildMediaFilename,
     detectPlatform,
     normalizePermalink,
     isPermalink,
