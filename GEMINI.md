@@ -39,7 +39,7 @@
     + **Menu ba chấm ⋮:** Thẻ mới, Tải lại, bật/tắt **Trang web cho máy tính** (Desktop Site), mở **Tệp đã tải xuống**, và **Xoá dữ liệu duyệt web** (cache, cookie, web storage) 1-click.
     + **Trình Quản Lý Tệp Đã Tải Xuống (Downloads BottomSheet):** Liệt kê chi tiết toàn bộ video, nhạc MP3, ảnh trong `Downloads/Download_Video/`, hỗ trợ mở phát trực tiếp qua VLC/Thư viện ảnh, chia sẻ tệp sang Zalo/Drive/Messenger và xoá tệp an toàn.
     + **Độc lập 100% trong máy:** Nhúng Python qua Chaquopy chạy `yt-dlp` PyPI, binary FFmpeg tĩnh ARM64 muxing 2K/4K và MP3, Background Foreground Service kèm tiến độ %, lưu file an toàn vào `Downloads/Download_Video/` và quét MediaStore vào Gallery.
-  - Test suite tự động: 46/46 tests Node.js PASS + toàn bộ Kotlin Unit Tests PASS.
+  - Test suite tự động: 48/48 tests Node.js PASS + toàn bộ Kotlin Unit Tests PASS.
   - Kịch bản đóng gói 1-click: `build-apk.bat` (tại thư mục gốc) và `android-app/build-apk.bat`.
 
 ---
@@ -70,6 +70,21 @@
 ---
 
 ## 5. Nhật ký công việc (mới nhất ở trên)
+
+### 2026-11-14 — Sửa lỗi nghiêm trọng: `SyntaxError: Identifier 'url' has already been declared` tại `content.js:546` làm mất toàn bộ nút Download
+- **Định làm:**
+  1. Trong `extension/content/content.js` tại hàm `findMediaAt`: xoá khai báo trùng biến `let url = '';` ở dòng 546 (đã được khai báo ở dòng 543 trước đó).
+  2. Bổ sung unit test bắt buộc trong `tests/extension-safety.test.js`:
+     - Kiểm tra cú pháp (`new vm.Script`) toàn bộ các file `.js` trong `extension/` và `dvi_mobile_content.js` để không bao giờ lọt lỗi `SyntaxError`.
+     - Bổ sung smoke test chạy `media-utils.js` + `content.js` trong môi trường DOM giả lập (gồm rê chuột `mousemove` qua `<video>`), xác nhận thanh công cụ nút tải (`dvi-bar`) hiển thị (`visible`) và không phát sinh lỗi runtime.
+  3. Chạy toàn bộ test suite (`node --test "tests/*.test.js"`), cập nhật kết quả vào `GEMINI.md`, commit và `git push` lên `main`.
+- **Vì sao:** Ảnh chụp `chrome://extensions` Errors do người dùng gửi cho thấy lỗi `Uncaught SyntaxError: Identifier 'url' has already been declared` tại `extension/content/content.js:546`, khiến toàn bộ content script không thể thực thi và làm biến mất nút Download trên mọi trang web (như YouTube).
+- **Kết quả:** Đã hoàn thành 100%:
+  1. Đã xoá khai báo trùng biến `let url = '';` tại `extension/content/content.js` trong hàm `findMediaAt` (trước khi sửa là dòng 546).
+  2. Bổ sung 2 test mới vào [tests/extension-safety.test.js](tests/extension-safety.test.js):
+     - Kiểm tra cú pháp (`new vm.Script`) toàn bộ 5 file JS (`background.js`, `media-utils.js`, `content.js`, `page-probe.js`, `dvi_mobile_content.js`) để chặn triệt để lỗi `SyntaxError`.
+     - Smoke test thực thi `media-utils.js` + `content.js` trong DOM giả lập, mô phỏng rê chuột qua thẻ `<video>` trên YouTube và xác nhận thanh công cụ `.dvi-bar` hiển thị (`visible`) cùng nút `MAX`/`MP3`.
+  3. Toàn bộ **48/48** Node.js tests (`node --test "tests/*.test.js"`) PASS (0 fail, 0 skipped).
 
 ### 2026-11-13 — Sửa lỗi: Chặn vi phạm CSP inline script (`content.js`), lỗi header `Referer` khi tải trực tiếp (`background.js`), và bảo vệ tải video Blob trên Zalo Web
 - **Định làm:**

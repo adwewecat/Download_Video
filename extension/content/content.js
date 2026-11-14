@@ -540,8 +540,6 @@
     if (!targetEl) return null;
 
     const mediaType = foundVideo ? 'video' : 'image';
-    let url = '';
-
     const platform = U.detectPlatform(window.location.hostname);
     let url = '';
     let urlKind = 'none';
